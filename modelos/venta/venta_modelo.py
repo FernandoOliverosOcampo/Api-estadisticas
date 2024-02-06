@@ -30,10 +30,11 @@ class Venta():
             ventas_realizadas =[]
 
             #Ventas según el mes
-            ventas_octubre = []
             ventas_noviembre = []
             ventas_diciembre = []
             ventas_enero = []
+            ventas_febrero = []
+
 
             #Las ventas totales que ha realizado el asesor
             for i in range(0, len(response_data), 1):
@@ -43,10 +44,6 @@ class Venta():
             for i in range(0, len(ventas_realizadas), 1):
                 formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
 
-                # Mes octubre
-                if formato_fecha.month == 10:   
-                    ventas_octubre.append(ventas_realizadas[i])
-
                 # Mes noviembre
                 if formato_fecha.month == 11:   
                     ventas_noviembre.append(ventas_realizadas[i])
@@ -55,21 +52,25 @@ class Venta():
                 if formato_fecha.month == 12:
                     ventas_diciembre.append(ventas_realizadas[i])
 
-                # Mes diciembre
+                # Mes Enero
                 if formato_fecha.month == 1:
                     ventas_enero.append(ventas_realizadas[i])
 
+                # Mes Febrero
+                if formato_fecha.month == 2:
+                    ventas_febrero.append(ventas_realizadas[i])
+
             cant_ventas_totales_realizadas = len(ventas_realizadas)
-            cant_ventas_totales_octubre = len(ventas_octubre)
             cant_ventas_totales_noviembre = len(ventas_noviembre)
             cant_ventas_totales_diciembre = len(ventas_diciembre)
             cant_ventas_totales_enero = len(ventas_enero)
+            cant_ventas_totales_febrero = len(ventas_febrero)
 
             return jsonify({
                             "ventas_realizadas": ventas_realizadas,
                             "cant_ventas_realizadas": cant_ventas_totales_realizadas,
-                            "ventas_octubre": ventas_octubre,
-                            "cant_ventas_octubre": cant_ventas_totales_octubre,
+                            "ventas_febrero": ventas_febrero,
+                            "cant_ventas_febrero": cant_ventas_totales_febrero,
                             "ventas_noviembre": ventas_noviembre,
                             "cant_ventas_noviembre": cant_ventas_totales_noviembre,
                             "ventas_diciembre": ventas_diciembre,
@@ -195,10 +196,8 @@ class Venta():
             nombre_agente = request.json.get('nombre_agente')
             mantenimiento = request.json.get('mantenimiento')
             tipo_mantenimiento = request.json.get('tipo_mantenimiento')
+            legalizacion = request.json.get('legalizacion')
             
-            
-            
-
             datos_js = {
                 "marca_temporal": marca_temporal,
                 "compania": compania,
@@ -230,9 +229,9 @@ class Venta():
                 "cedula": cedula,
                 "lider_equipo": lider_equipo,
                 "mantenimiento": mantenimiento,
-                "tipo_mantenimiento": tipo_mantenimiento
+                "tipo_mantenimiento": tipo_mantenimiento,
+                "legalizacion": legalizacion
             }
-
 
             datos_recordatorio = json.dumps(datos_js)
             
@@ -274,16 +273,15 @@ class Venta():
                 "audios_cargados": request.json.get('audios_cargados'),
                 "estado": request.json.get('estado'),
                 "observaciones_adicionales": request.json.get('observaciones_adicionales'),
+                "legalizacion": request.json.get('legalizacion')
             }
 
             id_venta = request.json.get('id_venta')
-            datos_recordatorio = json.dumps(data_dict)
+            #datos_recordatorio = json.dumps(data_dict)
 
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
             response_data = supabase.table('VENTAS_REALIZADAS').update(data_dict).eq('id', id_venta).execute()
-
-            print(response_data)
              
             return jsonify({"Compañia": "compania"})
         

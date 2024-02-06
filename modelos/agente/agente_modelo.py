@@ -45,6 +45,10 @@ class Agente():
             # Obtener las ventas que se realizaron en la semana actual
             ventas_semana_actual = self.ventas_semana_actual(response_data, primer_dia_semana, ultimo_dia_semana)
 
+            print(ventas_semana_actual)
+
+            total_ventas_mes_actual = len(self.ventas_mes_actual(response_data))
+
             #Finales
             cant_ventas = len(response_data)
             cant_ventas_semana = len(ventas_semana_actual)
@@ -55,6 +59,7 @@ class Agente():
                 "cant_ventas_totales": cant_ventas,
                 "cant_ventas_semana_actual": cant_ventas_semana,
                 "prom_venta_semana_actual": prom_venta_semana_actual,
+                "cant_ventas_mes_actual": total_ventas_mes_actual,
                 "prom_venta_mes_actual": prom_venta_mes_actual,
                 "cant_ventas_activas": cant_ventas_activas,
                 "cant_ventas_no_facturables": cant_ventas_no_facturables,
@@ -95,6 +100,25 @@ class Agente():
                 ventas_semana_actual.append(venta)  
 
         return ventas_semana_actual
+    
+    def ventas_mes_actual(self, response_data):
+
+        ventas_realizadas = []
+        ventas_febrero = []
+
+        #Las ventas totales que ha realizado el asesor
+        for i in range(0, len(response_data), 1):
+            ventas_realizadas.append(response_data[i])
+
+                #Filtro de ventas según los meses
+        for i in range(0, len(ventas_realizadas), 1):
+            formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
+
+            # Mes diciembre
+            if formato_fecha.month == 2:
+                ventas_febrero.append(ventas_realizadas[i])
+
+        return ventas_febrero
 
     def cant_ventasX_estado(self, response_data):
         ventas_activas = []

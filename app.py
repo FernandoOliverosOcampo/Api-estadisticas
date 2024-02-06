@@ -13,7 +13,7 @@ from rutas.equipo_ruta import *
 
 app = Flask(__name__)
 jwt = JWTManager(app)
-cors = CORS(app, resources={r"/*": {"origins": "http://0.0.0.0:5600"}})
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['JWT_SECRET_KEY'] = 'super-secret' # Clave secreta para firmar los JWT
 
 # GENERALES
@@ -49,4 +49,4 @@ def pagina_no_encontrada(error):
 
 if __name__=="__main__":
     app.register_error_handler(404 , pagina_no_encontrada)
-    app.run(host="0.0.0.0",port = 5600, debug=True)
+    app.run(host="0.0.0.0",port = 5700, debug=True)
