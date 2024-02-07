@@ -288,3 +288,32 @@ class Venta():
         except requests.exceptions.HTTPError as err:
                 print(err)
         return 201
+    
+    def editar_venta_calidad(self):
+
+        try:
+             
+            data_dict = {
+                "verificacion_calidad": request.json.get('verificacion_calidad'),
+                "llamada_calidad": request.json.get('llamada_calidad'),
+                "calidad_enviada": request.json.get('calidad_enviada'),
+                "observaciones_calidad": request.json.get('observaciones_calidad'),
+                "observaciones_venta": request.json.get('observaciones_venta'),
+                "audios_cargados": request.json.get('audios_cargados'),
+                "estado": request.json.get('estado'),
+                "observaciones_adicionales": request.json.get('observaciones_adicionales'),
+                "legalizacion": request.json.get('legalizacion')
+            }
+
+            id_venta = request.json.get('id_venta')
+            #datos_recordatorio = json.dumps(data_dict)
+
+            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+            response_data = supabase.table('VENTAS_REALIZADAS').update(data_dict).eq('id', id_venta).execute()
+             
+            return jsonify({"Compañia": "compania"})
+        
+        except requests.exceptions.HTTPError as err:
+                print(err)
+        return 201

@@ -33,6 +33,8 @@ app.register_blueprint(mostrar_ventas_mes_especifico)
 app.register_blueprint(mostrar_ventas_mensuales)
 app.register_blueprint(registrar_venta)
 app.register_blueprint(editar_venta)
+app.register_blueprint(editar_venta_calidad)
+
 
 
 # TEAM LEADER

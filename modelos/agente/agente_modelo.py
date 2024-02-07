@@ -49,6 +49,40 @@ class Agente():
 
             total_ventas_mes_actual = len(self.ventas_mes_actual(response_data))
 
+                        #Todas las ventas realizadas por el agente
+            ventas_realizadas =[]
+
+            #Ventas según el mes
+            ventas_diciembre = []
+            ventas_enero = []
+            ventas_febrero = []
+
+            #Las ventas totales que ha realizado el asesor
+            for i in range(0, len(response_data), 1):
+                ventas_realizadas.append(response_data[i])
+
+            #Filtro de ventas según los meses
+            for i in range(0, len(ventas_realizadas), 1):
+                formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
+
+                # Mes diciembre
+                if formato_fecha.month == 12:
+                    ventas_diciembre.append(ventas_realizadas[i])
+
+                # Mes Enero
+                if formato_fecha.month == 1:
+                    ventas_enero.append(ventas_realizadas[i])
+
+                # Mes Febrero
+                if formato_fecha.month == 2:   
+                    ventas_febrero.append(ventas_realizadas[i])
+
+                    
+            cant_ventas_realizadas = len(response_data)
+            cant_ventas_febrero = len(ventas_febrero)
+            cant_ventas_diciembre = len(ventas_diciembre)
+            cant_ventas_enero = len(ventas_enero)
+
             #Finales
             cant_ventas = len(response_data)
             cant_ventas_semana = len(ventas_semana_actual)
@@ -64,7 +98,11 @@ class Agente():
                 "cant_ventas_activas": cant_ventas_activas,
                 "cant_ventas_no_facturables": cant_ventas_no_facturables,
                 "cant_ventas_pendiente": cant_ventas_pendiente,
-                "cant_ventas_opcion_no_seleccionada": cant_ventas_opcion_no_seleccionada
+                "cant_ventas_opcion_no_seleccionada": cant_ventas_opcion_no_seleccionada,
+                "cant_ventas_realizadas" : cant_ventas_realizadas,
+                "cant_ventas_diciembre" : cant_ventas_diciembre,
+                "cant_ventas_enero" : cant_ventas_enero,
+                "cant_ventas_febrero" : cant_ventas_febrero
             })
 
         except requests.exceptions.HTTPError as err:
@@ -166,9 +204,11 @@ class Agente():
             lider_equipo = request.json.get('lider_equipo')
             rol =  request.json.get('rol')
             contrasena =  request.json.get('contrasena')
+            usuario =  request.json.get('usuario')
             
             datos_js ={
                 "apodo": apodo,
+                "usuario": usuario,
                 "nombre": nombre,
                 "cedula": cedula,
                 "correo": correo,
