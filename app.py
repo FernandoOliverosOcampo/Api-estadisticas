@@ -23,6 +23,7 @@ app.register_blueprint(descargar_ventas_realizadas)
 # AGENTE
 app.register_blueprint(mostrar_datos_personales)
 app.register_blueprint(estadisticas)
+app.register_blueprint(actualizar_agente)
 app.register_blueprint(registrar_agente)
 
 # VENTA

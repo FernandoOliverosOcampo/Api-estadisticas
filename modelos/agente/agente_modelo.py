@@ -29,8 +29,11 @@ class Agente():
                 print(err)
         return 201
     
+
+     
     def estadisticas(self, cedula):
         try:
+            print("ejecutando estadisticas")
             response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}',
                                     headers = headers)
             response_data = json.loads(response.text)
@@ -235,3 +238,27 @@ class Agente():
                 print(err)
         return 201
 
+    def actualizar_agente(self):
+        try:
+            data_dict ={
+                
+                "nombre": request.json.get('nombre'),
+                "correo": request.json.get('correo'),
+                "celular": request.json.get('celular'),
+                "campana": request.json.get('campana'),
+                "lider_responsable": request.json.get('lider_responsable'),
+                "lider_equipo":  request.json.get('lider_equipo')
+                
+            }
+            
+            apodo = request.json.get('apodo')
+            
+            
+            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+            
+            response_data = supabase.table('AGENTES').update(data_dict).eq('apodo', apodo).execute()
+             
+            return jsonify({"Compañia": "compania"})
+        except requests.exceptions.HTTPError as err:
+            print(err)
+        return 201
