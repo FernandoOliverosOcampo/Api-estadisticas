@@ -31,7 +31,6 @@ class Agente():
     
     def estadisticas(self, cedula):
         try:
-            print("ejecutando estadisticas")
             response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}',
                                     headers = headers)
             response_data = json.loads(response.text)

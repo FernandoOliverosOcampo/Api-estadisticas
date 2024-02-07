@@ -5,11 +5,39 @@ from datetime import datetime
 
 class Venta():
 
+
+    def descargar_ventas_realizadas(self):
+            try:
+                supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+                csv_filename='ventas_realizadas.csv'
+
+                response_data = supabase.table('VENTAS_REALIZADAS').select("*").gt('id', '500').execute()
+
+                # Obtener los datos de la respuesta
+                ventas_data = response_data.data
+
+                # Crear un DataFrame de Pandas
+                df_ventas = pd.DataFrame(ventas_data)
+
+                # Exportar el DataFrame a un archivo CSV
+                df_ventas.to_csv(csv_filename, index=False)
+
+                # Ruta al archivo CSV exportado
+                archivo_csv = 'ventas_realizadas.csv'
+
+                # Descargar el archivo CSV
+                return send_file(archivo_csv, as_attachment=True)
+                    
+            except requests.exceptions.HTTPError as err:
+                print(err)
+                return 201
+
     def mostrar_todas_ventas_realizadas(self):
         try:
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-            response_data = supabase.table('VENTAS_REALIZADAS').select("*").gt('id','1000').execute()
+            response_data = supabase.table('VENTAS_REALIZADAS').select("*").gt('id','1000').order('id.desc').execute()
 
             return jsonify({
                 "ventas": response_data.data

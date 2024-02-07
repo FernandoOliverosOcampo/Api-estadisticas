@@ -2,6 +2,7 @@ from controladores.venta.venta_controlador import *
 from librerias import *
 
 con_venta = VentaControlador()
+descargar_ventas_realizadas = Blueprint('descargar_ventas_realizadas', __name__)
 mostrar_todas_ventas_realizadas = Blueprint('mostrar_todas_ventas_realizadas', __name__)
 mostrar_ventas_realizadas = Blueprint('mostrar_ventas_realizadas', __name__)
 mostrar_estado_ventas = Blueprint('mostrar_estado_ventas', __name__)
@@ -14,6 +15,11 @@ editar_venta_calidad = Blueprint('editar_venta_calidad', __name__)
 
 
 # RUTAS GET
+@descargar_ventas_realizadas.route('/descargar-ventas/', methods=['GET'])
+@cross_origin()
+def get_descargar_ventas_realizadas():
+   return con_venta.descargar_ventas_realizadas()
+
 @mostrar_todas_ventas_realizadas.route('/mostrar-ventas/', methods=['GET'])
 @cross_origin()
 def mostrar_todas_las_ventas_realizadas():
