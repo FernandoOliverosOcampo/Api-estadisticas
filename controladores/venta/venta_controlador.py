@@ -39,3 +39,7 @@ class VentaControlador():
     def editar_venta_calidad(self):
         query = mod_venta.editar_venta_calidad()
         return query
+    
+    def editar_estado_venta(self):
+        query = mod_venta.editar_estado_venta()
+        return query

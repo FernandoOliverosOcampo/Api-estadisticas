@@ -12,6 +12,7 @@ mostrar_ventas_mensuales = Blueprint('mostrar_ventas_mensuales', __name__)
 registrar_venta = Blueprint('registrar_venta', __name__)
 editar_venta = Blueprint('editar_venta', __name__)
 editar_venta_calidad = Blueprint('editar_venta_calidad', __name__)
+editar_venta_estado = Blueprint('editar_venta_estado', __name__)
 
 
 # RUTAS GET
@@ -66,5 +67,8 @@ def edito_venta():
 def edito_venta_calidad():
    return con_venta.editar_venta_calidad()
 
-
+@editar_venta_estado.route('/editar-venta-estado/', methods=['PUT'])
+@cross_origin()
+def edito_estado_venta():
+   return con_venta.editar_estado_venta()
 

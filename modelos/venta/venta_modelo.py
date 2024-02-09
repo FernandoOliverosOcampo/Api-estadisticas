@@ -10,7 +10,7 @@ class Venta():
             try:
                 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-                csv_filename='ventas_realizadas.csv'
+                csv_filename= '/home/equitisoporte/Api-estadisticas/ventas_realizadas.csv'
 
                 response_data = supabase.table('VENTAS_REALIZADAS').select("*").gt('id', '500').execute()
 
@@ -24,7 +24,7 @@ class Venta():
                 df_ventas.to_csv(csv_filename, index=False)
 
                 # Ruta al archivo CSV exportado
-                archivo_csv = 'ventas_realizadas.csv'
+                archivo_csv = '/home/equitisoporte/Api-estadisticas/ventas_realizadas.csv'
 
                 # Descargar el archivo CSV
                 return send_file(archivo_csv, as_attachment=True)
@@ -328,9 +328,29 @@ class Venta():
                 "observaciones_calidad": request.json.get('observaciones_calidad'),
                 "observaciones_venta": request.json.get('observaciones_venta'),
                 "audios_cargados": request.json.get('audios_cargados'),
-                "estado": request.json.get('estado'),
                 "observaciones_adicionales": request.json.get('observaciones_adicionales'),
                 "legalizacion": request.json.get('legalizacion')
+            }
+
+            id_venta = request.json.get('id_venta')
+            #datos_recordatorio = json.dumps(data_dict)
+
+            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+            response_data = supabase.table('VENTAS_REALIZADAS').update(data_dict).eq('id', id_venta).execute()
+             
+            return jsonify({"Compañia": "compania"})
+        
+        except requests.exceptions.HTTPError as err:
+                print(err)
+        return 201
+    
+    def editar_estado_venta(self):
+
+        try:
+             
+            data_dict = {
+                "estado": request.json.get('estado'),
             }
 
             id_venta = request.json.get('id_venta')

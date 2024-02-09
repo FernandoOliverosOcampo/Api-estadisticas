@@ -23,8 +23,8 @@ app.register_blueprint(descargar_ventas_realizadas)
 # AGENTE
 app.register_blueprint(mostrar_datos_personales)
 app.register_blueprint(estadisticas)
-app.register_blueprint(actualizar_agente)
 app.register_blueprint(registrar_agente)
+app.register_blueprint(actualizar_agente)
 
 # VENTA
 app.register_blueprint(mostrar_todas_ventas_realizadas)
@@ -36,6 +36,7 @@ app.register_blueprint(mostrar_ventas_mensuales)
 app.register_blueprint(registrar_venta)
 app.register_blueprint(editar_venta)
 app.register_blueprint(editar_venta_calidad)
+app.register_blueprint(editar_venta_estado)
 
 
 

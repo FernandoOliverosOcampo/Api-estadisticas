@@ -28,9 +28,9 @@ class Agente():
         except requests.exceptions.HTTPError as err:
                 print(err)
         return 201
-    
 
-     
+
+
     def estadisticas(self, cedula):
         try:
             print("ejecutando estadisticas")
@@ -76,10 +76,10 @@ class Agente():
                     ventas_enero.append(ventas_realizadas[i])
 
                 # Mes Febrero
-                if formato_fecha.month == 2:   
+                if formato_fecha.month == 2:
                     ventas_febrero.append(ventas_realizadas[i])
 
-                    
+
             cant_ventas_realizadas = len(response_data)
             cant_ventas_febrero = len(ventas_febrero)
             cant_ventas_diciembre = len(ventas_diciembre)
@@ -121,13 +121,13 @@ class Agente():
 
         # Obtener el último día de la semana actual (viernes)
         ultimo_dia_semana = primer_dia_semana + timedelta(days = 4)
-        ultimo_dia_semana = ultimo_dia_semana.replace(hour = 23, minute = 59, second = 59, microsecond = 999999)     
+        ultimo_dia_semana = ultimo_dia_semana.replace(hour = 23, minute = 59, second = 59, microsecond = 999999)
 
         # Calcular la cantidad de días transcurridos en la semana actual
         dias_transcurridos = (fecha_actual - primer_dia_semana).days + 1
 
         return fecha_actual, primer_dia_semana, ultimo_dia_semana, dias_transcurridos
-    
+
     def ventas_semana_actual(self, response_data, primer_dia_semana, ultimo_dia_semana):
         # Filtro de ventas según la semana actual
         ventas_semana_actual = []
@@ -137,10 +137,10 @@ class Agente():
 
             # Verificar si la venta ocurrió dentro de la semana actual
             if primer_dia_semana <= formato_fecha <= ultimo_dia_semana:
-                ventas_semana_actual.append(venta)  
+                ventas_semana_actual.append(venta)
 
         return ventas_semana_actual
-    
+
     def ventas_mes_actual(self, response_data):
 
         ventas_realizadas = []
@@ -172,7 +172,7 @@ class Agente():
             # Filtro de ventas según el estado "activa"
             if formato_fecha.year == 2024 and venta['estado'] == "activa":
                 ventas_activas.append(venta)
-                
+
             # Filtro de ventas según el estado "no facturable"
             if formato_fecha.year == 2024 and venta['estado'] == "no facturable":
                 ventas_no_facturables.append(venta)
@@ -194,7 +194,7 @@ class Agente():
 
     def registro_agentes(self):
         try:
-            apodo = request.json.get('apodo')   
+            apodo = request.json.get('apodo')
             nombre = request.json.get('nombre')
             cedula = request.json.get('cedula')
             correo = request.json.get('correo')
@@ -207,7 +207,7 @@ class Agente():
             rol =  request.json.get('rol')
             contrasena =  request.json.get('contrasena')
             usuario =  request.json.get('usuario')
-            
+
             datos_js ={
                 "apodo": apodo,
                 "usuario": usuario,
@@ -223,17 +223,17 @@ class Agente():
                 "rol": rol,
                 "contrasena": contrasena
             }
-            
+
             datos_recordatorio = json.dumps(datos_js)
-            
+
             response = requests.post(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/AGENTES',
                                     data = datos_recordatorio,
                                     headers = headers)
-            
+
             print(response)
-            
+
             return jsonify({"prubea": "xd"})
-        
+
         except requests.exceptions.HTTPError as err:
                 print(err)
         return 201
@@ -241,24 +241,24 @@ class Agente():
     def actualizar_agente(self):
         try:
             data_dict ={
-                
+
                 "nombre": request.json.get('nombre'),
                 "correo": request.json.get('correo'),
                 "celular": request.json.get('celular'),
                 "campana": request.json.get('campana'),
                 "lider_responsable": request.json.get('lider_responsable'),
                 "lider_equipo":  request.json.get('lider_equipo')
-                
+
             }
-            
+
             apodo = request.json.get('apodo')
-            
-            
+
+
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-            
+
             response_data = supabase.table('AGENTES').update(data_dict).eq('apodo', apodo).execute()
-             
-            return jsonify({"Compañia": "compania"})
+
+            return jsonify({"Compañia": "compania"}), 200
         except requests.exceptions.HTTPError as err:
             print(err)
         return 201

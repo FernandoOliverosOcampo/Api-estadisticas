@@ -11,7 +11,6 @@ class AgenteControlador():
     def estadisticas(self, cedula):
         query = mod_agente.estadisticas(cedula)
         return query
-    
     def registro_de_agente(self):
         query = mod_agente.registro_agentes()
         return query
