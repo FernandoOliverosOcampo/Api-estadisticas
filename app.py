@@ -38,15 +38,9 @@ app.register_blueprint(editar_venta)
 app.register_blueprint(editar_venta_calidad)
 app.register_blueprint(editar_venta_estado)
 
-
-
 # TEAM LEADER
-app.register_blueprint(venta_realizadas_agente_equipo)
 app.register_blueprint(agentes_pertenecientes)
 app.register_blueprint(info_equipo)
-
-
-# REPORTE DIARIO
 
 #Pagina de error
 def pagina_no_encontrada(error):

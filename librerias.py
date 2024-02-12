@@ -7,3 +7,4 @@ import json
 from datetime import datetime, timedelta
 from supabase import create_client
 import pandas as pd
+from collections import Counter

@@ -12,7 +12,7 @@ class Venta():
 
                 csv_filename= '/home/equitisoporte/Api-estadisticas/ventas_realizadas.csv'
 
-                response_data = supabase.table('VENTAS_REALIZADAS').select("*").gt('id', '500').execute()
+                response_data = supabase.table('VENTAS_REALIZADAS').select("*").gt('id', '1000').execute()
 
                 # Obtener los datos de la respuesta
                 ventas_data = response_data.data
@@ -50,9 +50,11 @@ class Venta():
             
         try:
 
-            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}',
-                                    headers = headers)
-            response_data = json.loads(response.text)
+            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+            
+            response = supabase.table('VENTAS_REALIZADAS').select("*").eq('cedula', cedula).order('id.desc').execute()
+
+            response_data = response.data
 
             #Todas las ventas realizadas por el agente
             ventas_realizadas =[]
@@ -297,7 +299,6 @@ class Venta():
                 "llamada_calidad": request.json.get('llamada_calidad'),
                 "calidad_enviada": request.json.get('calidad_enviada'),
                 "observaciones_calidad": request.json.get('observaciones_calidad'),
-                "observaciones_venta": request.json.get('observaciones_venta'),
                 "audios_cargados": request.json.get('audios_cargados'),
                 "estado": request.json.get('estado'),
                 "observaciones_adicionales": request.json.get('observaciones_adicionales'),
@@ -305,13 +306,12 @@ class Venta():
             }
 
             id_venta = request.json.get('id_venta')
-            #datos_recordatorio = json.dumps(data_dict)
 
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
             response_data = supabase.table('VENTAS_REALIZADAS').update(data_dict).eq('id', id_venta).execute()
              
-            return jsonify({"Compañia": "compania"})
+            return jsonify({"editar_venta_status": "OK"}), 200
         
         except requests.exceptions.HTTPError as err:
                 print(err)
@@ -326,14 +326,11 @@ class Venta():
                 "llamada_calidad": request.json.get('llamada_calidad'),
                 "calidad_enviada": request.json.get('calidad_enviada'),
                 "observaciones_calidad": request.json.get('observaciones_calidad'),
-                "observaciones_venta": request.json.get('observaciones_venta'),
                 "audios_cargados": request.json.get('audios_cargados'),
-                "observaciones_adicionales": request.json.get('observaciones_adicionales'),
                 "legalizacion": request.json.get('legalizacion')
             }
 
             id_venta = request.json.get('id_venta')
-            #datos_recordatorio = json.dumps(data_dict)
 
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -365,3 +362,7 @@ class Venta():
         except requests.exceptions.HTTPError as err:
                 print(err)
         return 201
+
+
+
+        
