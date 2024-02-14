@@ -32,6 +32,7 @@ app.register_blueprint(editar_venta)
 app.register_blueprint(editar_venta_calidad)
 app.register_blueprint(editar_venta_estado)
 app.register_blueprint(eliminar_venta)
+app.register_blueprint(mostrar_por_fecha)
 
 # TEAM LEADER
 app.register_blueprint(agentes_pertenecientes)

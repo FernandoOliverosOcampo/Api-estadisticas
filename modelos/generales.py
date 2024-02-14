@@ -22,7 +22,7 @@ def guardar_historial(tabla, accion, usuario, descripcion):
 
             #supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
             
-            #response_data = supabase.table('HISTORIAL').insert([datos_js]).execute()
+            #response_data = supabase.table('HISTORIAL_MAL').insert([datos_js]).execute()
 
             #print(response_data)
              

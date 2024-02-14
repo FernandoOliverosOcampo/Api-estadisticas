@@ -47,3 +47,7 @@ class VentaControlador():
     def eliminar_venta(self, id):
         query = mod_venta.eliminar_venta(id)
         return query
+    
+    def venta_por_fecha(self):
+        query = mod_venta.mostrar_venta_por_fecha()
+        return query
