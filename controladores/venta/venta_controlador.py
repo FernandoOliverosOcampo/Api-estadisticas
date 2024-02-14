@@ -43,3 +43,7 @@ class VentaControlador():
     def editar_estado_venta(self):
         query = mod_venta.editar_estado_venta()
         return query
+    
+    def eliminar_venta(self, id):
+        query = mod_venta.eliminar_venta(id)
+        return query

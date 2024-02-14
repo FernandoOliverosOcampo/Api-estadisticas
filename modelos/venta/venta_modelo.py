@@ -2,9 +2,9 @@ from config import *
 from librerias import *
 from modelos.supabase.keys import *
 from datetime import datetime
+from modelos.generales import *
 
 class Venta():
-
 
     def descargar_ventas_realizadas(self):
             try:
@@ -336,7 +336,7 @@ class Venta():
 
             response_data = supabase.table('VENTAS_REALIZADAS').update(data_dict).eq('id', id_venta).execute()
              
-            return jsonify({"Compañia": "compania"})
+            return jsonify({"editar_venta_calidad": "OK"}), 200
         
         except requests.exceptions.HTTPError as err:
                 print(err)
@@ -345,7 +345,6 @@ class Venta():
     def editar_estado_venta(self):
 
         try:
-             
             data_dict = {
                 "estado": request.json.get('estado'),
             }
@@ -357,12 +356,24 @@ class Venta():
 
             response_data = supabase.table('VENTAS_REALIZADAS').update(data_dict).eq('id', id_venta).execute()
              
-            return jsonify({"Compañia": "compania"})
+            return jsonify({"estado_venta": "OK"})
         
         except requests.exceptions.HTTPError as err:
                 print(err)
         return 201
 
+    def eliminar_venta(self, id):
+        try:
+            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+            
+            response_data = supabase.table('VENTAS_REALIZADAS').delete().eq('id', id).execute()
+                         
+            return jsonify({
+                 "id_venta_eliminada": id
+                 }), 200
 
+        except requests.exceptions.HTTPError as err:
+                print(err)
+        return 201
 
         

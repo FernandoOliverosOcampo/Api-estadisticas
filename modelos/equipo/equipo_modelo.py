@@ -5,13 +5,21 @@ from modelos.supabase.keys import *
 class Equipo():
 
     # Rutas
+    # Se recibe el nombre, pero, si es capacitacion, cambiará la consulta y buscará por nombre_agente ya que hay usuarios con lider de equipo no asignado.
     def info_equipo(self, lider_equipo):
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
         try:
+            if (lider_equipo == "katheryn"):
+                nombre_agente = "capacitacion"
 
-            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?lider_equipo=eq.{lider_equipo}',
+                response = supabase.table('VENTAS_REALIZADAS').select("*").eq('nombre_agente', nombre_agente).order('id.desc').execute()
+            else:
+                response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?lider_equipo=eq.{lider_equipo}',
                                         headers = headers)
-            response_data = json.loads(response.text)
+
+            #response_data = json.loads(response.text)
+            response_data = response.data
 
 
             # Cantidad de ventas según su estado
@@ -80,6 +88,7 @@ class Equipo():
                 "prom_venta_semana_actual": prom_venta_semana_actual,
                 "prom_venta_mes_actual": prom_venta_mes_actual,
                 "prom_ventas_diarias": prom_ventas_diarias,
+                "ventas_realizadas": ventas_realizadas,
                 "ventas_activas": ventas_activas,
                 "ventas_temporal": ventas_temporal,
                 "ventas_baja": ventas_baja,
@@ -283,6 +292,5 @@ class Equipo():
                 dias_transcurridos_mes += 1
 
         return fecha_actual, primer_dia_semana, ultimo_dia_semana, dias_transcurridos, dias_transcurridos_mes
-
 
 

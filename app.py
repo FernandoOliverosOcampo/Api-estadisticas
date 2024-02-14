@@ -1,15 +1,9 @@
 from imports import *
 from librerias import *
-# import sys
 from rutas.inicio_sesion_ruta import *
 from rutas.agente_ruta import *
 from rutas.venta_ruta import *
 from rutas.equipo_ruta import *
-# sys.path.append('/home/tu_usuario/proyecto/rutas')
-# from inicio_sesion_ruta import *
-# from agente_ruta import *
-# from venta_ruta import *
-# from equipo_ruta import *
 
 app = Flask(__name__)
 jwt = JWTManager(app)
@@ -37,10 +31,12 @@ app.register_blueprint(registrar_venta)
 app.register_blueprint(editar_venta)
 app.register_blueprint(editar_venta_calidad)
 app.register_blueprint(editar_venta_estado)
+app.register_blueprint(eliminar_venta)
 
 # TEAM LEADER
 app.register_blueprint(agentes_pertenecientes)
 app.register_blueprint(info_equipo)
+
 
 #Pagina de error
 def pagina_no_encontrada(error):

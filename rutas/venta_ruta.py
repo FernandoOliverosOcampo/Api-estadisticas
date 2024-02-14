@@ -13,6 +13,7 @@ registrar_venta = Blueprint('registrar_venta', __name__)
 editar_venta = Blueprint('editar_venta', __name__)
 editar_venta_calidad = Blueprint('editar_venta_calidad', __name__)
 editar_venta_estado = Blueprint('editar_venta_estado', __name__)
+eliminar_venta = Blueprint('eliminar_venta', __name__)
 
 
 # RUTAS GET
@@ -37,7 +38,6 @@ def venta_semana_actual(cedula):
    return con_venta.mostrar_ventas_semana_actual(cedula)
 
 # RUTAS POST
-
 @mostrar_estado_ventas.route('/estado-ventas/', methods=['POST'])
 @cross_origin()
 def estado_ventas():
@@ -55,7 +55,6 @@ def registro_venta():
    return con_venta.registrar_venta()
 
 # RUTAS PUT
-
 @editar_venta.route('/editar-venta/', methods=['PUT'])
 @cross_origin()
 def edito_venta():
@@ -72,3 +71,9 @@ def edito_venta_calidad():
 def edito_estado_venta():
    return con_venta.editar_estado_venta()
 
+# RUTAS DELETE
+
+@eliminar_venta.route('/eliminar-venta/<id>', methods=['DELETE'])
+@cross_origin()
+def delete_eliminar_venta(id):
+   return con_venta.eliminar_venta(id)
