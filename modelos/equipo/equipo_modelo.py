@@ -15,7 +15,8 @@ class Equipo():
 
                 response = supabase.table('VENTAS_REALIZADAS').select("*").eq('nombre_agente', nombre_agente).order('id.desc').execute()
             else:
-                response = supabase.table('VENTAS_REALIZADAS').select("*").eq('lider_equipo', lider_equipo).order('id.desc').execute()
+                response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?lider_equipo=eq.{lider_equipo}',
+                                        headers = headers)
 
             #response_data = json.loads(response.text)
             response_data = response.data

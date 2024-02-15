@@ -32,11 +32,10 @@ class Agente():
     
     def estadisticas(self, cedula):
         try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-            response = supabase.table('VENTAS_REALIZADAS_MAL').select("*").eq('cedula', cedula).order('id.desc').execute()
-
-            response_data = response.data
+            print("ejecutando estadisticas")
+            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}',
+                                    headers = headers)
+            response_data = json.loads(response.text)
 
             # Cantidad de ventas según su estado
             ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad = self.cant_ventasX_estado(response_data)
@@ -56,7 +55,6 @@ class Agente():
             ventas_diciembre = []
             ventas_enero = []
             ventas_febrero = []
-            ventas_dia_actual = []
 
             #Las ventas totales que ha realizado el asesor
             for i in range(0, len(response_data), 1):
@@ -77,23 +75,7 @@ class Agente():
                 # Mes Febrero
                 if formato_fecha.month == 2:
                     ventas_febrero.append(ventas_realizadas[i])
-                
-                
-            for i in range(0, len(ventas_realizadas), 1):
-                formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
-                    
-                if formato_fecha.day == fecha_actual.day and formato_fecha.month == fecha_actual.month:
 
-                    ventas_dia_actual.append(ventas_realizadas[i])
-                    
-            # print("es hoy", formato_fecha.day)
-            print("dia actual", fecha_actual.day)
-            # print("mes", formato_fecha.month)
-            print("fecha mes actual", fecha_actual.month)   
-            
-            print(ventas_dia_actual)
-                # print(len(ventas_dia_actual))
-            
             #------------------Finales-------------------
             # En ventas
             cant_ventas = len(response_data)
@@ -215,7 +197,7 @@ class Agente():
     def datos_fecha(self):
         # Obtener la fecha actual
         fecha_actual = datetime.now()
-        print("fecha desde funcion", fecha_actual)
+
         # Obtener el primer día de la semana actual (lunes)
         primer_dia_semana = fecha_actual - timedelta(days = fecha_actual.weekday())
         primer_dia_semana = primer_dia_semana.replace(hour = 0, minute = 0, second = 0, microsecond = 0)

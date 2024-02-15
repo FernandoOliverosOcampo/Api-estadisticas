@@ -12,7 +12,7 @@ class Venta():
 
                 csv_filename= '/home/equitisoporte/Api-estadisticas/ventas_realizadas.csv'
 
-                response_data = supabase.table('VENTAS_REALIZADAS_MAL').select("*").gt('id', '1000').execute()
+                response_data = supabase.table('VENTAS_REALIZADAS').select("*").gt('id', '1000').execute()
 
                 # Obtener los datos de la respuesta
                 ventas_data = response_data.data
@@ -37,15 +37,14 @@ class Venta():
         try:
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-            response_data = supabase.table('VENTAS_REALIZADAS_MAL').select("*").gt('id','1000').order('id.desc').execute()
-            print(response_data.data)
+            response_data = supabase.table('VENTAS_REALIZADAS').select("*").gt('id','1000').order('id.desc').execute()
+
             return jsonify({
                 "ventas": response_data.data
-            }), 200
-            
+            })
         except requests.exceptions.HTTPError as err:
             print(err)
-        return 201
+            return 201
         
     def mostrar_ventas_realizadas(self, cedula):
             
@@ -53,7 +52,7 @@ class Venta():
 
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
             
-            response = supabase.table('VENTAS_REALIZADAS_MAL').select("*").eq('cedula', cedula).order('id.desc').execute()
+            response = supabase.table('VENTAS_REALIZADAS').select("*").eq('cedula', cedula).order('id.desc').execute()
 
             response_data = response.data
 
@@ -119,7 +118,7 @@ class Venta():
             cedula = request.json.get('cedula')
             estado_venta = request.json.get('estado_venta')
 
-            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS_MAL?cedula=eq.{cedula}&estado=eq.{estado_venta}',
+            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}&estado=eq.{estado_venta}',
                                     headers = headers)
             ventas_realizadas = json.loads(response.text)        
 
@@ -134,7 +133,7 @@ class Venta():
     def ventas_semana_actual(self, cedula):
         try:
             print("ejecutando esta")
-            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS_MAL?cedula=eq.{cedula}',
+            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}',
                                     headers = headers)
             response_data = json.loads(response.text)
 
@@ -172,7 +171,7 @@ class Venta():
             mes = request.json.get('mes')
             year = request.json.get('year')
 
-            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS_MAL?cedula=eq.{cedula}',
+            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}',
                                     headers = headers)
             ventas_realizadas = json.loads(response.text)
 
@@ -266,12 +265,13 @@ class Venta():
 
             datos_recordatorio = json.dumps(datos_js)
             
+            print(datos_recordatorio)
 
-            response = requests.post(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS_MAL',
+            response = requests.post(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS',
                                     data = datos_recordatorio,
                                     headers = headers)
             print(response)
-            return jsonify({"respuesta": "response"})
+            return jsonify({"prubea": "xd"})
 
         except requests.exceptions.HTTPError as err:
                 print(err)
@@ -309,7 +309,7 @@ class Venta():
 
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-            response_data = supabase.table('VENTAS_REALIZADAS_MAL').update(data_dict).eq('id', id_venta).execute()
+            response_data = supabase.table('VENTAS_REALIZADAS').update(data_dict).eq('id', id_venta).execute()
              
             return jsonify({"editar_venta_status": "OK"}), 200
         
@@ -334,7 +334,7 @@ class Venta():
 
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-            response_data = supabase.table('VENTAS_REALIZADAS_MAL').update(data_dict).eq('id', id_venta).execute()
+            response_data = supabase.table('VENTAS_REALIZADAS').update(data_dict).eq('id', id_venta).execute()
              
             return jsonify({"editar_venta_calidad": "OK"}), 200
         
@@ -354,7 +354,7 @@ class Venta():
 
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-            response_data = supabase.table('VENTAS_REALIZADAS_MAL').update(data_dict).eq('id', id_venta).execute()
+            response_data = supabase.table('VENTAS_REALIZADAS').update(data_dict).eq('id', id_venta).execute()
              
             return jsonify({"estado_venta": "OK"})
         
@@ -366,7 +366,7 @@ class Venta():
         try:
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
             
-            response_data = supabase.table('VENTAS_REALIZADAS_MAL').delete().eq('id', id).execute()
+            response_data = supabase.table('VENTAS_REALIZADAS').delete().eq('id', id).execute()
                          
             return jsonify({
                  "id_venta_eliminada": id
@@ -376,21 +376,4 @@ class Venta():
                 print(err)
         return 201
 
-    def mostrar_venta_por_fecha(self):
-        try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-            
-            fecha = request.json.get("fecha_venta")
-            
-            response = supabase.table('VENTAS_REALIZADAS_MAL').select("*").eq("fecha_ingreso_venta", fecha).execute()
-            
-            print(response.data)
-            
-            return jsonify({
-                "ventas": response.data
-            }), 200
-           
-            
-        except requests.exceptions.HTTPError as err:
-             print(err)
-        return 201
+        

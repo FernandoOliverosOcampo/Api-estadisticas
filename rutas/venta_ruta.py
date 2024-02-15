@@ -14,7 +14,6 @@ editar_venta = Blueprint('editar_venta', __name__)
 editar_venta_calidad = Blueprint('editar_venta_calidad', __name__)
 editar_venta_estado = Blueprint('editar_venta_estado', __name__)
 eliminar_venta = Blueprint('eliminar_venta', __name__)
-mostrar_por_fecha = Blueprint('mostrar_por_fecha', __name__)
 
 
 # RUTAS GET
@@ -78,8 +77,3 @@ def edito_estado_venta():
 @cross_origin()
 def delete_eliminar_venta(id):
    return con_venta.eliminar_venta(id)
-
-@mostrar_por_fecha.route('/mostrar-por-fecha/', methods=['POST'])
-@cross_origin()
-def mostrar_tabla_venta():
-   return con_venta.venta_por_fecha()
