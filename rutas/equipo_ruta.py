@@ -12,5 +12,6 @@ def informacion_equipo(lider_equipo):
    return con_equipo.info_equipo(lider_equipo)
 
 @agentes_pertenecientes.route('/agentes-pertenecientes/<lider_equipo>', methods=['GET'])
+@cross_origin()
 def agentes_equipo(lider_equipo):
    return con_equipo.agentes_pertenecientes(lider_equipo)

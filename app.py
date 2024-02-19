@@ -32,6 +32,15 @@ app.register_blueprint(editar_venta)
 app.register_blueprint(editar_venta_calidad)
 app.register_blueprint(editar_venta_estado)
 app.register_blueprint(eliminar_venta)
+app.register_blueprint(mostrar_por_fecha)
+app.register_blueprint(mostrar_por_estado)
+app.register_blueprint(mostrar_por_intervalo)
+app.register_blueprint(editar_venta_team_leader)
+app.register_blueprint(estadisticas_venta_dia)
+app.register_blueprint(estadisticas_agentes_mensual)
+app.register_blueprint(ventas_agente_semana_actual)
+app.register_blueprint(buscar_codigo_postal)
+
 
 # TEAM LEADER
 app.register_blueprint(agentes_pertenecientes)

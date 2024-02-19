@@ -44,6 +44,38 @@ class VentaControlador():
         query = mod_venta.editar_estado_venta()
         return query
     
+    def editar_venta_team_leader(self):
+        query = mod_venta.editar_venta_team_leader()
+        return query
+    
     def eliminar_venta(self, id):
         query = mod_venta.eliminar_venta(id)
+        return query
+    
+    def venta_por_fecha(self):
+        query = mod_venta.mostrar_venta_por_fecha()
+        return query
+    
+    def venta_por_estado(self):
+        query = mod_venta.mostrar_venta_por_estado()
+        return query
+    
+    def venta_por_intervalo(self):
+        query = mod_venta.mostrar_venta_por_intervalo()
+        return query
+    
+    def estadisticas_venta_dia(self):
+        query = mod_venta.estadisticas_venta_dia()
+        return query
+    
+    def estadisticas_agentes_mensual(self):
+        query = mod_venta.estadisticas_agentes_mensual()
+        return query
+    
+    def ventas_agente_semana_actual(self):
+        query = mod_venta.ventas_agente_semana_actual()
+        return query
+    
+    def buscar_codigo_postal(self):
+        query = mod_venta.info_codigo()
         return query

@@ -1,26 +1,26 @@
 from config import *
 from librerias import *
 from modelos.supabase.keys import *
+from modelos.generales import *
 
 class Equipo():
 
     # Rutas
     # Se recibe el nombre, pero, si es capacitacion, cambiará la consulta y buscará por nombre_agente ya que hay usuarios con lider de equipo no asignado.
+    # /info-equipo/<lider_equipo>
     def info_equipo(self, lider_equipo):
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
         try:
+            if lider_equipo is None or lider_equipo == "":
+                return jsonify({"error" : "campo lider_equipo vacío"}), 401
+
             if (lider_equipo == "katheryn"):
                 nombre_agente = "capacitacion"
-
-                response = supabase.table('VENTAS_REALIZADAS').select("*").eq('nombre_agente', nombre_agente).order('id.desc').execute()
+                response = supabase.table(tabla_ventas_produccion).select("*").eq('nombre_agente', nombre_agente).order('id.desc').execute()
             else:
-                response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?lider_equipo=eq.{lider_equipo}',
-                                        headers = headers)
+                response = supabase.table(tabla_ventas_produccion).select("*").eq('lider_equipo', lider_equipo).order('id.desc').execute()
 
-            #response_data = json.loads(response.text)
             response_data = response.data
-
 
             # Cantidad de ventas según su estado
             ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad = self.cant_ventasX_estado(response_data)
@@ -76,7 +76,6 @@ class Equipo():
             prom_venta_mes_actual = round(total_ventas_mes_actual / dias_transcurridos_mes, 2)
             prom_ventas_diarias = round(total_ventas_mes_actual / dias_transcurridos_mes, 2)
             
-
             return jsonify({
                 "cant_ventas_totales": cant_ventas,
                 "cant_ventas_semana_actual": cant_ventas_semana,
@@ -103,17 +102,20 @@ class Equipo():
                 "ventas_no_cumple_calidad": ventas_no_cumple_calidad
             })
         
-        except requests.exceptions.HTTPError as err:
-            print(err)
-        return 201
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
 
+    # Trae todos los agentes pertenecientes a un lider de equipo junto con sus ventas realizadas
+    # /agentes-pertenecientes/<lider_equipo>
     def agentes_pertenecientes(self, lider_equipo):
-        try:
 
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-            
-            response = supabase.table('AGENTES').select("cedula", "apodo", "nombre").eq("lider_equipo", lider_equipo).execute()
-            response2 = supabase.table('VENTAS_REALIZADAS').select("nombre_agente", "fecha_ingreso_venta").eq("lider_equipo", lider_equipo).execute()
+        try:
+            if lider_equipo is None or lider_equipo == "":
+                return jsonify({"error" : "campo lider_equipo vacío"}), 401
+
+            info_agentes = supabase.table(tabla_agentes_pruebas).select("cedula", "apodo", "nombre").eq("lider_equipo", lider_equipo).execute()
+            info_ventas_agente = supabase.table(tabla_ventas_pruebas).select("nombre_agente", "fecha_ingreso_venta").eq("lider_equipo", lider_equipo).execute()
             #Se guardan todas las ventas que traiga la consulta
             ventas_realizadas = []
             #Se guardan las ventas del mes actual
@@ -123,8 +125,8 @@ class Equipo():
             mes_actual = fecha_actual.month
 
             #Las ventas totales que ha realizado el asesor
-            for i in range(0, len(response2.data), 1):
-                ventas_realizadas.append(response2.data[i])
+            for i in range(0, len(info_ventas_agente.data), 1):
+                ventas_realizadas.append(info_ventas_agente.data[i])
 
              #Filtrar ventas del mes en curso
             for i in range(0, len(ventas_realizadas), 1):
@@ -138,8 +140,8 @@ class Equipo():
             frecuencia_nombres = Counter(agente['nombre_agente'] for agente in ventas_mes_actual)
             
             agentes = []
-            for i in range(0, len(response.data), 1):
-                agentes.append(response.data[i])
+            for i in range(0, len(info_agentes.data), 1):
+                agentes.append(info_agentes.data[i])
 
             # Crear una nueva lista que combine la información de los agentes y sus frecuencias
             resultado_combinado = []
@@ -152,9 +154,9 @@ class Equipo():
             
             return jsonify({"agentes_pertenecientes": resultado_combinado}), 200
 
-        except requests.exceptions.HTTPError as err:
-            print(err)
-        return 201    
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500 
     
     # Funciones
     def cant_ventasX_estado(self, response_data):

@@ -1,16 +1,24 @@
 from config import *
 from librerias import *
 from modelos.supabase.keys import *
+from modelos.generales import *
 
 class Agente():
 
     # Rutas
+
+    # Muestra los datos personales de un agente mediante su cedula
+    # /mostrar-datos-personales/<cedula>
     def mostrar_datos_personales(self, cedula):
 
         try:
-            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/AGENTES?cedula=eq.{cedula}',
-                                        headers = headers)
-            response_data = json.loads(response.text)
+
+            if cedula is None or cedula == "":
+                return jsonify({"error" : "campo cedula vacío"}), 401
+
+            response = supabase.table(tabla_agentes_pruebas).select('*').eq('cedula', cedula).execute()
+
+            response_data = response.data
 
             return jsonify({
                 "cedula": response_data[0]['cedula'],
@@ -26,16 +34,21 @@ class Agente():
                 "apodo": response_data[0]['apodo']
                 })
 
-        except requests.exceptions.HTTPError as err:
-                print(err)
-        return 201
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
     
+    # Muestra las estadisticas generales de un agente mediante su cedula
+    # /estadisticas/<cedula>
     def estadisticas(self, cedula):
         try:
-            print("ejecutando estadisticas")
-            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}',
-                                    headers = headers)
-            response_data = json.loads(response.text)
+
+            if cedula is None or cedula == "":
+                return jsonify({"error" : "campo cedula vacío"}), 401
+
+            response = supabase.table(tabla_ventas_pruebas).select("*").eq('cedula', cedula).order('id.desc').execute()
+
+            response_data = response.data
 
             # Cantidad de ventas según su estado
             ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad = self.cant_ventasX_estado(response_data)
@@ -55,6 +68,7 @@ class Agente():
             ventas_diciembre = []
             ventas_enero = []
             ventas_febrero = []
+            ventas_dia_actual = []
 
             #Las ventas totales que ha realizado el asesor
             for i in range(0, len(response_data), 1):
@@ -75,7 +89,15 @@ class Agente():
                 # Mes Febrero
                 if formato_fecha.month == 2:
                     ventas_febrero.append(ventas_realizadas[i])
+                
+                
+            for i in range(0, len(ventas_realizadas), 1):
+                formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
+                    
+                if formato_fecha.day == fecha_actual.day and formato_fecha.month == fecha_actual.month:
 
+                    ventas_dia_actual.append(ventas_realizadas[i])
+            
             #------------------Finales-------------------
             # En ventas
             cant_ventas = len(response_data)
@@ -120,60 +142,51 @@ class Agente():
                 "ventas_no_cumple_calidad": ventas_no_cumple_calidad
             })
 
-        except requests.exceptions.HTTPError as err:
-            print(err)
-        return 201
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
 
+    # Crea un nuevo agente
+    # /registro-agente/
     def registro_agentes(self):
         try:
-            apodo = request.json.get('apodo')
-            nombre = request.json.get('nombre')
-            cedula = request.json.get('cedula')
-            correo = request.json.get('correo')
-            celular = request.json.get('celular')
-            estado = request.json.get('estado')
-            grupo = request.json.get('grupo')
-            campana = request.json.get('campana')
-            lider_responsable = request.json.get('lider_responsable')
-            lider_equipo = request.json.get('lider_equipo')
-            rol =  request.json.get('rol')
-            contrasena =  request.json.get('contrasena')
-            usuario =  request.json.get('usuario')
 
             datos_js ={
-                "apodo": apodo,
-                "usuario": usuario,
-                "nombre": nombre,
-                "cedula": cedula,
-                "correo": correo,
-                "celular": celular,
-                "estado": estado,
-                "grupo": grupo,
-                "campana": campana,
-                "lider_responsable": lider_responsable,
-                "lider_equipo": lider_equipo,
-                "rol": rol,
-                "contrasena": contrasena
+                "apodo": request.json.get('apodo'),
+                "usuario": request.json.get('usuario'),
+                "contrasena": request.json.get('contrasena'),
+                "nombre": request.json.get('nombre'),
+                "cedula": request.json.get('cedula'),
+                "correo": request.json.get('correo'),
+                "celular": request.json.get('celular'),
+                "estado":  request.json.get('estado'),
+                "grupo":  request.json.get('grupo'),
+                "campana": request.json.get('campana'),
+                "lider_responsable": request.json.get('lider_responsable'),
+                "lider_equipo": request.json.get('lider_equipo'),
+                "rol": request.json.get('rol')
             }
 
-            datos_recordatorio = json.dumps(datos_js)
+            campos_vacios = diccionario_vacio(datos_js)
 
-            response = requests.post(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/AGENTES',
-                                    data = datos_recordatorio,
-                                    headers = headers)
+            if campos_vacios:
+                return jsonify({"registrar_agente_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
+            else:
+                
+                supabase.table(tabla_agentes_pruebas).insert(datos_js).execute()
 
-            print(response)
+                return jsonify({"registro_agente_status": "OK"}), 200
 
-            return jsonify({"prubea": "xd"})
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
 
-        except requests.exceptions.HTTPError as err:
-                print(err)
-        return 201
-
+    # Actualiza la información relacionada a un usuario
+    # /actualizar-informacion-agente/
     def actualizar_agente(self):
+
         try:
             data_dict ={
-
                 "nombre": request.json.get('nombre'),
                 "correo": request.json.get('correo'),
                 "celular": request.json.get('celular'),
@@ -184,20 +197,24 @@ class Agente():
 
             apodo = request.json.get('apodo')
 
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+            campos_vacios = diccionario_vacio(data_dict)
 
-            response_data = supabase.table('AGENTES').update(data_dict).eq('apodo', apodo).execute()
+            if campos_vacios:
+                return jsonify({"registrar_agente_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
+            
+            supabase.table(tabla_agentes_pruebas).update(data_dict).eq('apodo', apodo).execute()
 
             return jsonify({"actualizar_agente": "OK"}), 200
-        except requests.exceptions.HTTPError as err:
-            print(err)
-        return 201
+        
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
     
-    # Función
+    # Funciones
     def datos_fecha(self):
         # Obtener la fecha actual
         fecha_actual = datetime.now()
-
+        print("fecha desde funcion", fecha_actual)
         # Obtener el primer día de la semana actual (lunes)
         primer_dia_semana = fecha_actual - timedelta(days = fecha_actual.weekday())
         primer_dia_semana = primer_dia_semana.replace(hour = 0, minute = 0, second = 0, microsecond = 0)

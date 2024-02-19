@@ -1,6 +1,7 @@
 from config import *
 from librerias import *
 from modelos.supabase.keys import *
+from modelos.generales import *
 
 class Usuario():
 
@@ -9,20 +10,13 @@ class Usuario():
         usuario = request.json.get('usuario')
         password = request.json.get('password')
 
-        # Conectamos con Supabase
-        client = supabase.create_client(SUPABASE_URL, SUPABASE_KEY)
+        response = supabase.table(tabla_agentes_pruebas).select('rol','cedula').eq('usuario', usuario).eq('contrasena', password).execute()
 
-        # Buscamos el usuario en la tabla 'usuario'
-        query = client.table('AGENTES').select('*').eq('usuario', usuario).eq('contrasena', password)
-        res = query.execute()
-        # Si el usuario existe y la contraseña es correcta, se devuelve un token JWT
-        if len(res.data) == 1:
-            cedula = res.data[0]['cedula']
-            access_token = create_access_token(identity = usuario)
-            
-            if res.data[0]['rol'] == "admin":
-                return jsonify(access_token = access_token, acceso = "AUTORIZADO", cedula = cedula, rol = res.data[0]['rol']), 200
-            else:
-                return jsonify(access_token = access_token, acceso = "AUTORIZADO", cedula = cedula, rol = res.data[0]['rol']), 200
-        else:
+        if (len(response.data) == 0):
             return jsonify({"msg": "Credenciales inválidas"}), 401
+
+        cedula = response.data[0]['cedula']
+        rol = response.data[0]['rol']
+        access_token = create_access_token(identity = usuario)
+            
+        return jsonify({"access_token": access_token, "acceso": "AUTORIZADO", "cedula": cedula, "rol": rol}), 200

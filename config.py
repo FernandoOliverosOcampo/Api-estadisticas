@@ -2,7 +2,7 @@ import psycopg2
 try:
     connection = psycopg2.connect(user = "postgres",
                                   password = "Equiti2023*",
-                                  host = "db.fzsgnsghygycitueebre.supabase.co",
+                                  host = "db.fzsgnsghygycit22ueebre.supabase.co",
                                   port = "5432",
                                   database = "postgres")
 
