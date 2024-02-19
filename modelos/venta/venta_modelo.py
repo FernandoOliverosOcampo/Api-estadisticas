@@ -375,29 +375,32 @@ class Venta():
         except requests.exceptions.HTTPError as err:
              print(err)
         return 201
-    
     # Filtra la tabla de administrador según un intervalo de fechas
     # /mostrar_por_intervalo/
     def mostrar_venta_por_intervalo(self):
         try:
             fecha_inicial_str = request.json.get("fecha_inicial")
             fecha_final_str = request.json.get("fecha_final")
-            
+
             # Validación de datos de entrada
             if not fecha_inicial_str or not fecha_final_str:
                 return jsonify({"error": "Las fechas de inicio y fin son requeridas"}), 400
-            
+
             # Realizar la consulta a Supabase
-            response = supabase.table(tabla_ventas_produccion).select("*").execute()
-            
-            # Filtrar las ventas en el intervalo de fechas
-            ventas_en_intervalo = [venta for venta in response.data if fecha_inicial_str <= venta['fecha_ingreso_venta'] <= fecha_final_str]
-            
+            response = supabase.table(tabla_ventas_produccion).select("*").order('id.desc').execute()
+
+            # Filtrar las ventas en el intervalo de fechas y que pertenezcan al mismo mes y año
+            ventas_en_intervalo = [venta for venta in response.data if 
+                                fecha_inicial_str <= venta['fecha_ingreso_venta'] <= fecha_final_str and 
+                                venta['fecha_ingreso_venta'][3:5] == fecha_inicial_str[3:5] and 
+                                venta['fecha_ingreso_venta'][6:] == fecha_inicial_str[6:]]
+
             # Devolver los resultados de la consulta
             return jsonify({"ventas": ventas_en_intervalo}), 200
-        
+
         except Exception as e:
             return jsonify({"error": "Ocurrió un error al procesar la solicitud"}), 500
+
 
     # Muestra las estadisticas generales relacionadas a las ventas del dia actual
     #/estadisticas-venta-dia/
