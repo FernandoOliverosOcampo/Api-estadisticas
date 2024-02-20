@@ -10,8 +10,8 @@ class Venta():
     def descargar_ventas_realizadas(self):
             
         try:
-            #csv_filename= '/home/equitisoporte/Api-estadisticas/ventas_realizadas.csv'
-            csv_filename = 'ventas_realizadas.csv'
+            csv_filename= '/home/equitisoporte/Api-estadisticas/ventas_realizadas.csv'
+            #csv_filename = 'ventas_realizadas.csv'
             response = supabase.table(tabla_ventas_produccion).select("*").gt('id', cant_ventas_mostrar).execute()
 
             if (len(response.data) == 0):
