@@ -10,7 +10,7 @@ class Usuario():
         usuario = request.json.get('usuario')
         password = request.json.get('password')
 
-        response = supabase.table(tabla_agentes_pruebas).select('rol','cedula').eq('usuario', usuario).eq('contrasena', password).execute()
+        response = supabase.table(tabla_agentes_produccion).select('rol','cedula').eq('usuario', usuario).eq('contrasena', password).execute()
 
         if (len(response.data) == 0):
             return jsonify({"msg": "Credenciales inválidas"}), 401

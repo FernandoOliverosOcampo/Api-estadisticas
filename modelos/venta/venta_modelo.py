@@ -41,13 +41,13 @@ class Venta():
     def mostrar_todas_ventas_realizadas(self):
 
         try:
-            response = supabase.table(tabla_ventas_produccion).select("*").gt('id', 1600).order('id.desc').execute()
+            response = supabase.table(tabla_ventas_produccion).select("*").gt('id', cant_ventas_mostrar).order('id.desc').execute()
 
             if (len(response.data) == 0):
                 return jsonify({"res" : "No hay registros en esta tabla"}), 200
             
             else:
-                print(response.data)
+
                 return jsonify({
                     "ventas": response.data
                 }), 200
@@ -350,7 +350,7 @@ class Venta():
             if fecha is None or fecha == "":
                 return jsonify({"editar_venta_team_leader_status": "existen campos vacios", "campos_vacios": fecha}), 400
 
-            response = supabase.table(tabla_ventas_produccion).select("*").eq("fecha_ingreso_venta", fecha).execute()
+            response = supabase.table(tabla_ventas_produccion).select("*").eq("fecha_ingreso_venta", fecha).order('id.desc').execute()
             
             return jsonify({"ventas": response.data}), 200
            
@@ -358,7 +358,7 @@ class Venta():
              print(err)
         return 201
     
-    #Muestra las ventas por un estado especifico
+    # Muestra las ventas por un estado especifico
     # /mostrar-por-estado/
     def mostrar_venta_por_estado(self):
 
@@ -368,15 +368,31 @@ class Venta():
             if estado is None or estado == "":
                 return jsonify({"editar_venta_team_leader_status": "existen campos vacios", "campos_vacios": estado}), 400
 
-            response = supabase.table(tabla_ventas_produccion).select("*").eq("estado", estado).execute()
+            response = supabase.table(tabla_ventas_produccion).select("*").eq("estado", estado).order('id.desc').execute()
             
             return jsonify({"ventas": response.data}), 200
            
         except requests.exceptions.HTTPError as err:
              print(err)
         return 201
+    
+    # /filtrar-tabla/
+    def filtrar_tabla(self):
+
+        try:
+            columna_buscar = request.json.get("columna_buscar")
+            texto_buscar = request.json.get("texto_buscar")
+
+            response = supabase.table(tabla_ventas_produccion).select("*").eq(columna_buscar, texto_buscar).order('id.desc').execute()
+
+            return jsonify({"ventas": response.data}), 200
+           
+        except requests.exceptions.HTTPError as err:
+             print(err)
+        return 201
+    
     # Filtra la tabla de administrador según un intervalo de fechas
-    # /mostrar_por_intervalo/
+    # /mostrar-por-intervalo/
     def mostrar_venta_por_intervalo(self):
         try:
             fecha_inicial_str = request.json.get("fecha_inicial")
@@ -401,9 +417,8 @@ class Venta():
         except Exception as e:
             return jsonify({"error": "Ocurrió un error al procesar la solicitud"}), 500
 
-
     # Muestra las estadisticas generales relacionadas a las ventas del dia actual
-    #/estadisticas-venta-dia/
+    # /estadisticas-venta-dia/
     def estadisticas_venta_dia(self):
 
         try:
@@ -453,7 +468,6 @@ class Venta():
                 return jsonify({"eliminacion_venta_status": "error", "mensaje": "No hay ventas con esa fecha..."}), 200
             
             else:
-                
                 mes_actual = fecha_sistema.month
                 ventas_mes_actual = []
 
@@ -464,7 +478,6 @@ class Venta():
                     # Mes actual
                     if formato_fecha.month == mes_actual:
                         ventas_mes_actual.append(ventas_realizadas_data[i])
-
 
                 # Contar la frecuencia de cada nombre de agente
                 frecuencia_nombres = Counter(agente['nombre_agente'] for agente in ventas_mes_actual)
@@ -482,7 +495,7 @@ class Venta():
 
                 cant_ventas_mes_actual = len(ventas_mes_actual)
 
-                return jsonify({"cant_ventas_xagente": frecuencia_nombres, "cant_ventas_xteam_leader": frecuencia_team_leader, "venta_agentes": venta_agentes, "cant_ventas_mes_actual" : cant_ventas_mes_actual}), 200
+                return jsonify({"mes": mes_actual, "cant_ventas_xagente": frecuencia_nombres, "cant_ventas_xteam_leader": frecuencia_team_leader, "venta_agentes": venta_agentes, "cant_ventas_mes_actual" : cant_ventas_mes_actual}), 200
             
         except Exception as e:
             print("Ocurrió un error:", e)
@@ -492,11 +505,9 @@ class Venta():
     def ventas_agente_semana_actual(self):
 
         try:
-
             response = supabase.table(tabla_ventas_produccion).select("id","fecha_ingreso_venta", "nombre_agente", "lider_equipo").gt('id', 1000).order('id.desc').execute()
 
             response_data = response.data
-
 
             # Obtener la fecha actual
             fecha_actual = datetime.now()
@@ -520,7 +531,6 @@ class Venta():
             frecuencia_nombres = Counter(agente['nombre_agente'] for agente in ventas_semana_actual)
             frecuencia_team_leader = Counter(team_leader['lider_equipo'] for team_leader in ventas_semana_actual)
 
-            print(ventas_semana_actual)
             cant_ventas_semana_actual = len(ventas_semana_actual)
             
             return jsonify({
@@ -582,7 +592,6 @@ class Venta():
                 "semana_actual": ventas_semana_actual
             })
 
-
         except requests.exceptions.HTTPError as err:
                 print(err)
         return 201
@@ -616,6 +625,8 @@ class Venta():
                 print(err)
         return 201 
     
+    # NO SE QUE HACEN ACÁ
+    # /info-codigo/
     def info_codigo(self):
         
         try:

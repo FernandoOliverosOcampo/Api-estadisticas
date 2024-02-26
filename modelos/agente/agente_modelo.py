@@ -16,7 +16,7 @@ class Agente():
             if cedula is None or cedula == "":
                 return jsonify({"error" : "campo cedula vacío"}), 401
 
-            response = supabase.table(tabla_agentes_pruebas).select('*').eq('cedula', cedula).execute()
+            response = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
 
             response_data = response.data
 
@@ -46,7 +46,7 @@ class Agente():
             if cedula is None or cedula == "":
                 return jsonify({"error" : "campo cedula vacío"}), 401
 
-            response = supabase.table(tabla_ventas_pruebas).select("*").eq('cedula', cedula).order('id.desc').execute()
+            response = supabase.table(tabla_ventas_produccion).select("*").eq('cedula', cedula).order('id.desc').execute()
 
             response_data = response.data
 
@@ -173,7 +173,7 @@ class Agente():
                 return jsonify({"registrar_agente_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
             else:
                 
-                supabase.table(tabla_agentes_pruebas).insert(datos_js).execute()
+                supabase.table(tabla_agentes_produccion).insert(datos_js).execute()
 
                 return jsonify({"registro_agente_status": "OK"}), 200
 
@@ -202,7 +202,7 @@ class Agente():
             if campos_vacios:
                 return jsonify({"registrar_agente_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
             
-            supabase.table(tabla_agentes_pruebas).update(data_dict).eq('apodo', apodo).execute()
+            supabase.table(tabla_agentes_produccion).update(data_dict).eq('apodo', apodo).execute()
 
             return jsonify({"actualizar_agente": "OK"}), 200
         

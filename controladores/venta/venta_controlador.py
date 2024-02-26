@@ -20,6 +20,10 @@ class VentaControlador():
         query = mod_venta.mostrar_estado_ventas()
         return query
     
+    def filtrar_tabla(self):
+        query = mod_venta.filtrar_tabla()
+        return query
+    
     def mostrar_ventas_semana_actual(self, cedula):
         query = mod_venta.ventas_semana_actual(cedula)
         return query

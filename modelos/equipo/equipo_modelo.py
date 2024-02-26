@@ -114,8 +114,8 @@ class Equipo():
             if lider_equipo is None or lider_equipo == "":
                 return jsonify({"error" : "campo lider_equipo vacío"}), 401
 
-            info_agentes = supabase.table(tabla_agentes_pruebas).select("cedula", "apodo", "nombre").eq("lider_equipo", lider_equipo).execute()
-            info_ventas_agente = supabase.table(tabla_ventas_pruebas).select("nombre_agente", "fecha_ingreso_venta").eq("lider_equipo", lider_equipo).execute()
+            info_agentes = supabase.table(tabla_agentes_produccion).select("cedula", "apodo", "nombre").eq("lider_equipo", lider_equipo).execute()
+            info_ventas_agente = supabase.table(tabla_ventas_produccion).select("nombre_agente", "fecha_ingreso_venta").eq("lider_equipo", lider_equipo).execute()
             #Se guardan todas las ventas que traiga la consulta
             ventas_realizadas = []
             #Se guardan las ventas del mes actual
@@ -231,13 +231,11 @@ class Equipo():
         # Filtro de ventas según la semana actual
         ventas_semana_actual = []
 
-
         for venta in response_data:
             formato_fecha = datetime.strptime(venta['fecha_ingreso_venta'], "%d/%m/%Y")
             # Verificar si la venta ocurrió dentro de la semana actual
             if primer_dia_semana <= formato_fecha <= ultimo_dia_semana:
                 ventas_semana_actual.append(venta)
-        print(ventas_semana_actual)
 
         return ventas_semana_actual
 

@@ -17,6 +17,7 @@ eliminar_venta = Blueprint('eliminar_venta', __name__)
 mostrar_por_fecha = Blueprint('mostrar_por_fecha', __name__)
 editar_venta_team_leader = Blueprint('editar_venta_team_leader', __name__)
 mostrar_por_estado = Blueprint('mostrar_por_estado', __name__)
+filtrar_tabla = Blueprint('filtrar_tabla', __name__)
 mostrar_por_intervalo = Blueprint('mostrar_por_intervalo', __name__)
 estadisticas_venta_dia = Blueprint('estadisticas_venta_dia', __name__)
 estadisticas_agentes_mensual = Blueprint('estadisticas_agentes_mensual', __name__)
@@ -76,12 +77,17 @@ def get_editar_venta_team_leader():
 def mostrar_tabla_venta():
    return con_venta.venta_por_fecha()
 
-@mostrar_por_estado.route('/mostrar_por_estado/', methods=['POST'])
+@mostrar_por_estado.route('/mostrar-por-estado/', methods=['POST'])
 @cross_origin()
 def mostrar_tabla_venta_estado():
    return con_venta.venta_por_estado()
 
-@mostrar_por_intervalo.route('/mostrar_por_intervalo/', methods=['POST'])
+@filtrar_tabla.route('/filtrar-tabla/', methods=['POST'])
+@cross_origin()
+def post_filtrar_tabla():
+   return con_venta.filtrar_tabla()
+
+@mostrar_por_intervalo.route('/mostrar-por-intervalo/', methods=['POST'])
 @cross_origin()
 def mostrar_tabla_venta_intervalo():
    return con_venta.venta_por_intervalo()
