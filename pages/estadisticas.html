@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../estilos/estadisticas.css">
+    <link rel="shortcut icon" href="../img/descarga.ico" type="image/x-icon">
+    <title>Estadisticas Ventas</title>
+</head>
+
+<body>
+
+    <header>
+        <nav class="menu">
+            <div class="izquierda">
+                <div class="logo-empresa">
+                    <img src="../img/FINDII.png" alt="">
+                </div>
+                <div class="hora-actual">
+                    <p id="horaActual"></p>
+                </div>
+            </div>
+            <div class="derecha">
+
+                <div class="datos-agente">
+                    <div class="nombre-usuario" id="menuNombreAgente"> </div>
+                    <div class="rol-usuario" id="menuRolUsuario"> </div>
+                </div>
+
+                <div class="foto-usuario" id="abrirMenuOpciones">
+                    <img src="../img/undraw_male_avatar_g98d.svg" alt="">
+                </div>
+
+                <div class="opciones-perfil" id="opcionesPerfil">
+                    <div class="contenido-perfil" id="contenidoPerfil">
+                        <a href="" target="_blank"></a>
+                    </div>
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <div class="pagina">
+
+            <div class="contenedor">
+
+                <div class="datos-estadisticos">
+                    <div class="contenido-datos-estadisticos" id="contenedorDatos">
+
+                    </div>
+                </div>
+
+                <div class="datos-estadisticos2">
+                </div>
+
+                <div class="graficas">
+                    <div class="contenido-graficas">
+                        <div class="promedios">
+                            <div class="titulo_estadisticas">
+                                <p>Estadisticas semana actual</p>
+                        
+                            </div>
+                            <div class="contenido-promedios">
+                                <div class="promedio" id="promedioSemanal">
+                                
+                                </div>
+                                <div class="promedio" id="promedioMensual">
+                                    
+                                </div>
+                                <div class="promedio" id="ventaSemanal">
+                                    
+                                </div>
+
+                            </div>
+                            <div class="estados_venta">
+                                <div class="titulo_ventas">
+                                    <p>Estado de las ventas</p>
+                                </div>
+
+                                <div class="ventas" id = "ventas">
+                                    
+                                </div>
+                            </div>
+                          
+                           
+                        </div>
+
+                        <div class="ventas-mes cont-grafica">
+                            <div class="titulo-grafica">
+                                <p>Venta por mes</p>
+                            </div>
+
+                            <div class="grafica-ventas-mes">
+                                <canvas id="myChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="ventas-realizar cont-grafica">
+                            <div class="titulo-grafica" id="tituloGrafica">
+
+                            </div>
+                            <div class="grafica-ventas-realizar">
+                                <canvas id="myDona"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+
+                  
+                   
+
+
+                </div>
+                <div class="contenido-tabla">
+
+                    <label for="estado"><b>Seleciona el estado:</b> 
+                        <select name="estado" id="estadoVenta">
+                            <option value="no selecionada" selected>no selecionada</option>
+                            <option value="activa">activa</option>
+                            <option value="devuelta">devuelta</option>
+                            <option value="cancelada">cancelada</option>
+                            <option value="bajas">bajas</option>
+                            <option value="firmada">firmada</option>
+                            <option value="pendiente">pendiente</option>
+                            <option value="recuperada">recuperada</option>
+                            <option value="temporal">temporal</option>
+                            <option value="verificada">verificada</option>
+                        </select>
+                    </label>
+
+                    <div class="tabla" id="tablaDatos">
+                        <table>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/estadisticas/vista/estadisticas.js" type="module"></script>
+    <script src="https://kit.fontawesome.com/1a5bcd4a97.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</body>
+
+</html>

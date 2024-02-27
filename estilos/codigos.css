@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
+@import url(./home.css);
+* {
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    list-style: none;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+}
+
+:root{
+    --fondo: #f2f2f2;
+    --blanco: #ffffff;
+    --negro: #191919;
+    --primario: #5d17eb;
+    --hover-primario: #5315ce;
+    --fondo: #EFF0F8;
+    --textoGris: #888888;
+}
+
+body {
+    background-color: var(--fondo);
+}
+
+.menu {
+    display: flex;
+    width: 95vw;
+    margin: 1% auto;
+    border-radius: 0.5vw;
+    padding: 0.5vw 1vw;
+    background-color: rgb(30, 30, 30);
+    justify-content: space-between;
+    color: var(--blanco);
+    align-items: center;
+}
+
+.menu .izquierda .logo-empresa img {
+    height: 5vh;
+}
+
+.menu .derecha {
+    display: flex;
+    align-items: center;
+}
+
+.menu .derecha .datos-agente {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.menu .derecha .datos-agente p {
+    font-size: 1vw;
+}
+
+.menu .derecha .foto-usuario img {
+    height: 10vh;
+    cursor: pointer;
+}
+
+.derecha .opciones-perfil {
+    display: none;
+    position: absolute;
+    top: 11vh;
+    border-radius: 0.5vw;
+    background-color: var(--blanco);
+    box-shadow: 0 7px 25px 0 rgba(0, 0, 0, 0.08);
+    padding: 2vw;
+    right: 4vw;
+}
+
+.opciones-perfil .contenido-perfil {
+    display: flex;
+    text-align: start;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: start;
+    height: 30vh;
+    width: 12vw;
+}
+
+.contenido-perfil .enlaces {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1vh;
+}
+
+.contenido-perfil .pie-menu {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1vh;
+}
+
+.contenido-perfil .enlaces li a {
+    color: var(--negro);
+}
+
+.contenido-perfil .enlace {
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-start;
+    column-gap: 1vw;
+    flex-wrap: wrap;
+    row-gap: 2vh;
+}
+
+.contenido-perfil .enlace .icono i {
+    color: var(--negro);
+}
+
+
+.perfil-usuario {
+    display: grid;
+    place-content: center;
+}
+
+.perfil-usuario .contenido {
+    display: flex;
+    padding: 2vw;
+    row-gap: 15vh;
+    height: auto;
+    min-height: 60vh;
+    width: 80vw;
+    border-radius: 0.5vw;
+    margin-top: 3vh;
+    margin-bottom: 3vh;
+    background-color: var(--blanco);
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.perfil-usuario .contenido .titulo-central {
+    display: flex;
+    justify-items: center;
+    justify-content: center;
+    column-gap: 1vw;
+    align-items: center;
+}
+
+.perfil-usuario .contenido .titulo-central button{
+    border: none;
+    width: 5vw;
+    border-radius: 0.5vw;
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.perfil-usuario .contenido .titulo-central label {
+    font-size: 1.5vw;
+    font-weight: 400;
+}
+
+.perfil-usuario .contenido .titulo-central input{
+    width: 20vw;
+    padding: 0.5vw;
+    font-size: 1.5vw;
+}
+
+.perfil-usuario .contenido .cuadro-busqueda{
+    display: grid;
+    justify-content: center;
+}
+
+.perfil-usuario .contenido .contenedor-informacion {
+    display: grid;
+    grid-area: informacion;
+    row-gap: 2vw;
+}
+
+.perfil-usuario .contenido .contenedor-informacion .botones-perfil {
+    text-align: end;
+}
+
+.perfil-usuario .contenido .contenedor-informacion .botones-perfil button {
+    background-color: var(--primario);
+    border: none;
+    color: var(--blanco);
+    border-radius: 0.5vw;
+    padding: 1vw 2vw;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: 1vw;
+}
+
+.perfil-usuario .contenido .contenedor-informacion .informacion-perfil {
+    display: flex;
+    column-gap: 5vw;
+    justify-content: center;
+}
+
+.perfil-usuario .contenido .contenedor-informacion .informacion-perfil .campo .titulo p {
+    font-size: 1.4vw;
+}
+
+.perfil-usuario .contenido .contenedor-informacion .informacion-perfil .campo .texto p {
+    font-size: 1.2vw;
+    color: var(--textoGris);
+    text-align: center;
+}
+
+.contenedor-mensaje{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedor-cuenta{
+    display: flex;
+    flex-direction: column;
+    text-align: start;
+}

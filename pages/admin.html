@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../estilos/admin.css">
+    <link rel="shortcut icon" href="../img/descarga.ico" type="image/x-icon">
+    <title>Findii - Estadísticas</title>
+</head>
+
+<body>
+    <header>
+        <nav class="menu">
+            <div class="izquierda">
+                <div class="logo-empresa">
+                    <img src="../img/FINDII.png" alt="">
+                </div>
+                <div class="hora-actual">
+                    <p id="horaActual"></p>
+                </div>
+            </div>
+            <div class="derecha">
+
+                <div class="datos-agente">
+                    <div class="nombre-usuario" id="menuNombreAgente"> </div>
+                    <div class="rol-usuario" id="menuRolUsuario"> </div>
+                </div>
+
+                <div class="foto-usuario" id="abrirMenuOpciones">
+                    <img src="../img/undraw_male_avatar_g98d.svg" alt="">
+                </div>
+
+                <div class="opciones-perfil" id="opcionesPerfil">
+                    <div class="contenido-perfil" id="contenidoPerfil">
+                        <a href="" target="_blank"></a>
+                    </div>
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <section class="pagina-principal">
+            <div class="grilla">
+
+                <div class="contenido-datos-estadisticos" id="contenedorDatos">
+
+                </div>
+
+                <div class="graficas-ventas-diarias">
+                    <p>graficas ventas diarias</p>
+                </div>
+
+                <div class="tabla-grid">
+
+                    <div class="contenido-tabla">
+
+                        <div class="filtros-tabla">
+
+                            <div class="buscar-fecha">
+                                <div>
+                                    <p><b>Fecha:</b></p>
+                                </div>
+    
+                                <div>
+                                    <input type="date" id="buscarPorFecha">
+                                </div>
+                                
+                                <div>
+                                    <button id="btnBuscarFecha"> <i class="fa-solid fa-magnifying-glass"></i></button>
+                                </div>
+    
+                            </div>
+    
+                            <div class="buscar-por-estado">
+    
+                                <div class="buscar-por-estado-titulo">
+                                    <p><b>Filtrar:</b></p>
+                                </div>
+    
+                                <div class="filtro">
+                                    <select name="filtros" id="columnaBuscar">
+                                        <option value="sin filtros" selected>sin filtros</option>
+                                        <option value="dni">dni</option>
+                                        <option value="cups_luz">cups_luz</option>
+                                        <option value="cups_gas">cups_gas</option>
+                                        <option value="nombre_agente">nombre_agente</option>
+                                        <option value="numero_contrato">numero_contrato</option>
+                                        <option value="verificacion_calidad">verificacion_calidad</option>
+                                        <option value="estado">estado</option>
+                                        <option value="lider_equipo">lider_equipo</option>
+                                    </select>
+                                </div>
+    
+                                <div class="filtro-busqueda">
+                                    <input type="text" id="textoBuscar" placeholder="texto a buscar">
+                                </div>
+    
+                                <div class="boton-buscar">
+                                    <button id="btnFiltrarTabla"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                </div>
+    
+                            </div>
+    
+                            <div class="buscar-por-intervalo">
+    
+                                <div id="salesForm" class="filtros-intervalo">
+                                    <p class="texto1"><b>Fecha inicio:</b></p>
+                                    <input class="busqueda1" type="date" id="start_date" name="start_date">
+                                    <p class="texto2"><b>Fecha fin:</b></p>
+                                    <input class="busquead2" type="date" id="end_date" name="end_date">
+                                </div>
+    
+                                <div class="boton-buscar">
+                                    <button id="btnIntervalo"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                </div>
+    
+                            </div>
+    
+                        </div>
+    
+                        <div class="filtros-activos" id = "contenedorFiltrosActivos">
+                        </div>
+
+                        <div class="tabla" id="tablaDatos">
+                            <table>
+                            </table>
+                        </div>
+
+                        <div class="editar-formulario modal" id="targetModalInformacionDatos">
+                            <div class="contenido">
+                                <div class="titulo modal-cabecera" id="modalCabecera">
+                                    <!-- 
+                                    <a><i class="fa-solid fa-remove cerrar-modal-informacion-datos"></i></a>
+                                    -->
+                                </div>
+
+                                <div class="campos modal-cuerpo" id="modalCuerpo">
+
+
+                                </div>
+
+                                <div class="botones modal-footer">
+                                    <button id="botonEditar" class="boton">Editar</button>
+                                    <button id="botonEliminar" class="boton">Eliminar</button>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="boton-descarga">
+                        <a id="descargarVentas" class="decargar-venta" download> <button class="boton"><i
+                                    class="fa-regular fa-circle-down"></i> Descargar Ventas</button></a>
+                    </div>
+                    <!-- 
+                    <div class="historial-ventas">
+                        <h1>historial-ventas</h1>
+                    </div>
+                    -->
+
+                </div>
+
+                <div class="posiciones">
+                    <h1>TOP</h1>
+                    <div class="tarjetas">
+
+                        <div class="tarjeta top-agentes-mes">
+                            <div class="cabecera">
+                                <div class="icono">
+                                    <i class="fa-solid fa-people-group"></i>
+                                </div>
+                                <div class="titulo">
+                                    <p>Top agentes mes</p>
+                                </div>
+                            </div>
+
+                            <div class="cuerpo">
+                                <div class="descripcion" id="topAgentesMesContenedor">
+                                    <ul id="listaTopAgentesMes" class="lista">
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="tarjeta top-lideres-mes">
+                            <div class="cabecera">
+                                <div class="icono">
+                                    <i class="fa-solid fa-people-group"></i>
+                                </div>
+                                <div class="titulo">
+                                    <p>Top lideres mes</p>
+                                </div>
+                            </div>
+
+                            <div class="cuerpo">
+                                <div class="descripcion" id="topLideresMesContenedor">
+                                    <ul id="listaTopLideresMes" class="lista">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tarjeta top-agentes-semana">
+                            <div class="cabecera">
+                                <div class="icono">
+                                    <i class="fa-solid fa-people-group"></i>
+                                </div>
+                                <div class="titulo">
+                                    <p>Top agentes semana</p>
+                                </div>
+                            </div>
+
+                            <div class="cuerpo">
+                                <div class="descripcion" id="topAgentesSemanaContenedor">
+                                    <ul id="listaTopAgentesSemana" class="lista">
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+                                    <!-- 
+
+                <div class="graficas">
+                    <div class="contenido-graficas">
+
+                        <div class="ventas-mes cont-grafica">
+                            <div class="titulo-grafica">
+                                <p>Ventas de equipos por mes</p>
+                            </div>
+
+                            <div class="grafica-ventas-mes">
+                                <canvas id="myChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="ventas-realizar cont-grafica">
+                            <div class="titulo-grafica" id="tituloGrafica">
+
+                            </div>
+                            <div class="grafica-ventas-realizar">
+                                <canvas id="myDona"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                                    -->
+
+            </div>
+        </section>
+    </div>
+
+    <footer>
+
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/admin/vista/admin.js" type="module"></script>
+    <script src="https://kit.fontawesome.com/1a5bcd4a97.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</body>
+
+</html>

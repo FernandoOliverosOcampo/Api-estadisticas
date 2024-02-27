@@ -1,0 +1,232 @@
+@import url(../config/global.css);
+@import url(../menu.css);
+@import url(../tabla.css);
+
+.hero {
+    color: #191919;
+    background-color: #ffffff;
+}
+
+.hero .pagina-principal {
+    padding: 5vh 5vw;
+}
+
+.hero .pagina-principal .grilla{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    row-gap: 50px;
+}
+
+
+.contenido-datos-estadisticos {
+    display: flex;
+    column-gap: 2vw;
+    justify-content: flex-start;
+}
+
+.contenido-datos-estadisticos .estadistica {
+    display: grid;
+    grid-template-areas:
+        "valor icono"
+        "titulo titulo";
+    background-color: #ffffff;
+    padding: 0.5vw 1.5vw;
+    /* column-gap: 2vw; */
+    /* row-gap: 2vw; */
+    border-radius: 0.5vw;
+    justify-content: space-between;
+    box-shadow: 0 1px 15px 0 rgba(0, 0, 0, 0.08);
+    width: 12vw;
+}
+
+.estadistica .titulo {
+    grid-area: titulo;
+}
+
+.estadistica .titulo p {
+    color: #00000088;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.estadistica .valor {
+    grid-area: valor;
+}
+
+.estadistica .valor p {
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.estadistica .icono {
+    display: flex;
+    align-items: start;
+    grid-area: icono;
+    color: #030303;
+}
+
+.estadistica .icono i{
+    font-size: 40px;
+}   
+
+/* TABLA */
+
+.contenido-tabla .tabla {
+    width: 90vw;
+}
+
+/* INFORMACION DATOS (MODAL)*/
+
+.editar-formulario .contenido {
+    display: flex;
+    flex-direction: column;
+    row-gap: 2vw;
+    margin: 2% auto;
+    padding: 0 2vw;
+    background-color: var(--blanco);
+    border-radius: 0.5vw;
+    width: 80vw;
+    height: 90vh;
+    overflow: auto;
+}
+
+.editar-formulario .contenido .modal-cabecera {
+    display: flex;
+    border-bottom: 1px solid var(--fondo);
+}
+.editar-formulario .contenido .modal-cuerpo {
+    display: grid;
+    grid-template-areas:
+    "agente"
+    "editar"
+}
+.editar-formulario .contenido .modal-cuerpo .informacion-agente-venta{
+    grid-area: agente;
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+}
+.editar-formulario .contenido .modal-cuerpo .informacion-agente{
+    display: flex;
+    padding: 2vw 0;
+    justify-content: space-around;
+}
+
+.editar-formulario .contenido .modal-cuerpo .informacion-editar{
+    grid-area: editar;
+    display: grid;
+    grid-template-areas: 
+    "info-venta info-editable";
+    grid-template-columns: 2fr 1fr;
+}
+
+.informacion-editar .contenido-venta{
+    grid-area: info-venta;
+    display: grid;
+    row-gap: 20px;
+}
+
+.informacion-editar .campo .texto{
+    font-weight: bold;
+}
+
+.informacion-editar .contenido-editable{
+    grid-area: info-editable;
+    height: 20vh;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 50px;
+    justify-content: center;
+    row-gap: 20px
+}
+
+.entrada textarea{
+    height: 80px;
+    width: 30vw;
+    resize: none;
+}
+
+.editar-formulario .contenido .modal-footer{
+    text-align: end;
+}
+
+.filtros-tabla{
+    display: flex;
+    padding: 25px;
+    background-color: #f2f2f2;
+    border-radius: 0.5vw;
+    justify-content: space-around
+}
+
+.filtros-tabla .buscar-por-estado, .buscar-por-intervalo, .buscar-fecha{
+    display: flex;
+    align-items: center;
+    column-gap: 0.5vw;
+}
+
+.filtros-tabla 
+select{
+    width: 12.5vw;
+    padding: 0.5vw 1vw;
+    box-sizing: border-box;
+}
+
+.buscar-fecha input {
+    width: 11vw;
+    padding: 0.5vw 1vw;
+    border: none;
+    border-radius: 0.5vw;
+}
+
+.buscar-por-estado input{
+    width: 11vw;
+    border: none;
+    border-radius: 0.5vw;
+}
+
+.buscar-por-estado select{
+    width: 11vw;
+    border: none;
+    border-radius: 0.5vw;
+}
+
+.filtros-tabla .buscar-por-intervalo .filtros-intervalo{
+    display: flex;
+    align-items: center;
+    column-gap: 0.5vw;
+}
+
+.buscar-por-intervalo .boton-buscar button{
+    margin: 0 0.5dvw;
+}
+
+.buscar-por-intervalo input{
+    width: 11vw;
+    padding: 0.5vw 1vw;
+    border: none;
+    border-radius: 0.5vw;
+}
+
+.filtros-activos{
+    display: grid;
+    justify-items: center;
+    justify-content: end;
+}
+
+.filtros-activos .filtro {
+    display: inline-block;
+    background-color: var(--primario);
+    padding: 5px 20px;
+    border-radius: 0.5vw;
+}
+
+.filtros-activos .filtro p {
+    color: var(--blanco);
+}
+
+.filtros-activos .filtro .quitar-filtro{
+    cursor: pointer;
+}
+
+
