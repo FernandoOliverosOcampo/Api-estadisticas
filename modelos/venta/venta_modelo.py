@@ -345,12 +345,32 @@ class Venta():
     def mostrar_venta_por_fecha(self):
 
         try:
+            
             fecha = request.json.get("fecha_venta")
 
             if fecha is None or fecha == "":
                 return jsonify({"editar_venta_team_leader_status": "existen campos vacios", "campos_vacios": fecha}), 400
 
             response = supabase.table(tabla_ventas_produccion).select("*").eq("fecha_ingreso_venta", fecha).order('id.desc').execute()
+            
+            return jsonify({"ventas": response.data}), 200
+           
+        except requests.exceptions.HTTPError as err:
+             print(err)
+        return 201
+    
+    # Muestra los ventas para una fecha en específico
+    # /mostrar-por-fecha/
+    def mostrar_venta_por_fecha_team_leader(self):
+
+        try:
+            leader = request.json.get("lider_equipo")
+            fecha = request.json.get("fecha_venta")
+
+            if fecha is None or fecha == "":
+                return jsonify({"editar_venta_team_leader_status": "existen campos vacios", "campos_vacios": fecha}), 400
+
+            response = supabase.table(tabla_ventas_produccion).select("*").eq("fecha_ingreso_venta", fecha).eq("lider_equipo", leader).order('id.desc').execute()
             
             return jsonify({"ventas": response.data}), 200
            
@@ -391,6 +411,21 @@ class Venta():
              print(err)
         return 201
     
+    def filtrar_tabla_leader(self):
+
+        try:
+            leader_buscar = request.json.get("lider_equipo")
+            columna_buscar = request.json.get("columna_buscar")
+            texto_buscar = request.json.get("texto_buscar")
+
+            response = supabase.table(tabla_ventas_produccion).select("*").eq(columna_buscar, texto_buscar).eq('lider_equipo', leader_buscar).order('id.desc').execute()
+
+            return jsonify({"ventas": response.data}), 200
+           
+        except requests.exceptions.HTTPError as err:
+             print(err)
+        return 201
+    
     # Filtra la tabla de administrador según un intervalo de fechas
     # /mostrar-por-intervalo/
     def mostrar_venta_por_intervalo(self):
@@ -404,6 +439,33 @@ class Venta():
 
             # Realizar la consulta a Supabase
             response = supabase.table(tabla_ventas_produccion).select("*").order('id.desc').execute()
+
+            # Filtrar las ventas en el intervalo de fechas y que pertenezcan al mismo mes y año
+            ventas_en_intervalo = [venta for venta in response.data if 
+                                fecha_inicial_str <= venta['fecha_ingreso_venta'] <= fecha_final_str and 
+                                venta['fecha_ingreso_venta'][3:5] == fecha_inicial_str[3:5] and 
+                                venta['fecha_ingreso_venta'][6:] == fecha_inicial_str[6:]]
+
+            # Devolver los resultados de la consulta
+            return jsonify({"ventas": ventas_en_intervalo}), 200
+
+        except Exception as e:
+            return jsonify({"error": "Ocurrió un error al procesar la solicitud"}), 500
+
+    # Filtra la tabla de administrador según un intervalo de fechas
+    # /mostrar-por-intervalo/
+    def mostrar_venta_por_intervalo_leader(self):
+        try:
+            leader_buscar = request.json.get("lider_equipo")
+            fecha_inicial_str = request.json.get("fecha_inicial")
+            fecha_final_str = request.json.get("fecha_final")
+
+            # Validación de datos de entrada
+            if not fecha_inicial_str or not fecha_final_str:
+                return jsonify({"error": "Las fechas de inicio y fin son requeridas"}), 400
+
+            # Realizar la consulta a Supabase
+            response = supabase.table(tabla_ventas_produccion).select("*").eq('lider_equipo', leader_buscar).order('id.desc').execute()
 
             # Filtrar las ventas en el intervalo de fechas y que pertenezcan al mismo mes y año
             ventas_en_intervalo = [venta for venta in response.data if 
@@ -551,7 +613,7 @@ class Venta():
             cedula = request.json.get('cedula')
             estado_venta = request.json.get('estado_venta')
 
-            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS_MAL?cedula=eq.{cedula}&estado=eq.{estado_venta}',
+            response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}&estado=eq.{estado_venta}',
                                     headers = headers)
             ventas_realizadas = json.loads(response.text)        
 

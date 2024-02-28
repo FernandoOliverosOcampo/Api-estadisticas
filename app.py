@@ -41,7 +41,9 @@ app.register_blueprint(estadisticas_venta_dia)
 app.register_blueprint(estadisticas_agentes_mensual)
 app.register_blueprint(ventas_agente_semana_actual)
 app.register_blueprint(buscar_codigo_postal)
-
+app.register_blueprint(mostrar_por_fecha_leader)
+app.register_blueprint(filtro_tabla_leader)
+app.register_blueprint(mostrar_por_intervalo_leader)
 
 # TEAM LEADER
 app.register_blueprint(agentes_pertenecientes)

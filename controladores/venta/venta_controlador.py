@@ -24,6 +24,10 @@ class VentaControlador():
         query = mod_venta.filtrar_tabla()
         return query
     
+    def tabla_filtro_leader(self):
+        query = mod_venta.filtrar_tabla_leader()
+        return query
+        
     def mostrar_ventas_semana_actual(self, cedula):
         query = mod_venta.ventas_semana_actual(cedula)
         return query
@@ -60,12 +64,21 @@ class VentaControlador():
         query = mod_venta.mostrar_venta_por_fecha()
         return query
     
+    def venta_por_fecha_leader(self):
+        query = mod_venta.mostrar_venta_por_fecha_team_leader()
+        return query
+    
+ 
     def venta_por_estado(self):
         query = mod_venta.mostrar_venta_por_estado()
         return query
     
     def venta_por_intervalo(self):
         query = mod_venta.mostrar_venta_por_intervalo()
+        return query
+    
+    def venta_por_intervalo_leader(self):
+        query = mod_venta.mostrar_venta_por_intervalo_leader()
         return query
     
     def estadisticas_venta_dia(self):

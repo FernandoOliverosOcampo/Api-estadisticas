@@ -50,11 +50,11 @@ class Agente():
 
             response_data = response.data
 
-            # Cantidad de ventas según su estado
-            ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad = self.cant_ventasX_estado(response_data)
-
             # Sacar los datos de las fechas
-            fecha_actual, primer_dia_semana, ultimo_dia_semana, dias_transcurridos, dias_transcurridos_mes = self.datos_fecha()
+            fecha_actual, primer_dia_semana, ultimo_dia_semana, dias_transcurridos, dias_transcurridos_mes, mes_actual = self.datos_fecha()
+
+            # Cantidad de ventas según su estado
+            ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad = self.cant_ventasX_estado(response_data, mes_actual)
 
             # Obtener las ventas que se realizaron en la semana actual
             ventas_semana_actual = self.ventas_semana_actual(response_data, primer_dia_semana, ultimo_dia_semana)
@@ -229,6 +229,8 @@ class Agente():
             # Obtener la fecha actual
         fecha_actual = datetime.now()
 
+        mes_actual = fecha_actual.month
+
         # Obtener el primer día del mes actual
         primer_dia_mes = fecha_actual.replace(day=1)
 
@@ -244,7 +246,7 @@ class Agente():
             if dia_actual.weekday() < 5:  # Lunes=0, Martes=1, ..., Viernes=4
                 dias_transcurridos_mes += 1
 
-        return fecha_actual, primer_dia_semana, ultimo_dia_semana, dias_transcurridos, dias_transcurridos_mes
+        return fecha_actual, primer_dia_semana, ultimo_dia_semana, dias_transcurridos, dias_transcurridos_mes, mes_actual
 
     def ventas_semana_actual(self, response_data, primer_dia_semana, ultimo_dia_semana):
         # Filtro de ventas según la semana actual
@@ -278,7 +280,7 @@ class Agente():
 
         return ventas_febrero
 
-    def cant_ventasX_estado(self, response_data):
+    def cant_ventasX_estado(self, response_data, mes_actual):
         ventas_activas = []
         ventas_temporal = []
         ventas_baja = []
@@ -297,51 +299,51 @@ class Agente():
             formato_fecha = datetime.strptime(venta['fecha_ingreso_venta'], "%d/%m/%Y")
 
             # Filtro de ventas según el estado "activa"
-            if formato_fecha.year == 2024 and venta['estado'] == "activa":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "activa":
                 ventas_activas.append(venta)
 
             # Filtro de ventas según el estado "activa"
-            if formato_fecha.year == 2024 and venta['estado'] == "temporal":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "temporal":
                 ventas_temporal.append(venta)
 
             # Filtro de ventas según el estado "activa"
-            if formato_fecha.year == 2024 and venta['estado'] == "baja":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "baja":
                 ventas_baja.append(venta)    
 
             # Filtro de ventas según el estado "activa"
-            if formato_fecha.year == 2024 and venta['estado'] == "firmado":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "firmado":
                 ventas_firmado.append(venta)    
 
             # Filtro de ventas según el estado "activa"
-            if formato_fecha.year == 2024 and venta['estado'] == "verificado":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "verificado":
                 ventas_verificado.append(venta)    
 
             # Filtro de ventas según el estado "activa"
-            if formato_fecha.year == 2024 and venta['estado'] == "cancelada":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "cancelada":
                 ventas_cancelada.append(venta)    
 
             # Filtro de ventas según el estado "no facturable"
-            if formato_fecha.year == 2024 and venta['estado'] == "desistimiento":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "desistimiento":
                 ventas_desistimiento.append(venta)
 
             # Filtro de ventas según el estado "pendiente"
-            if formato_fecha.year == 2024 and venta['estado'] == "devuelta":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "devuelta":
                 ventas_devuelta.append(venta)
 
             # Filtro de ventas según el estado "pendiente"
-            if formato_fecha.year == 2024 and venta['estado'] == "pendiente":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "pendiente":
                 ventas_pendiente.append(venta)
 
             # Filtro de ventas según el estado "pendiente"
-            if formato_fecha.year == 2024 and venta['estado'] == "recuperada":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "recuperada":
                 ventas_recuperada.append(venta)
 
             # Filtro de ventas según el estado "pendiente"
-            if formato_fecha.year == 2024 and venta['estado'] == "cumple calidad":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "cumple calidad":
                 ventas_cumple_calidad.append(venta)
 
             # Filtro de ventas según el estado "pendiente"
-            if formato_fecha.year == 2024 and venta['estado'] == "no cumple calidad":
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "no cumple calidad":
                 ventas_no_cumple_calidad.append(venta)
 
         return ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad

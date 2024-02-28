@@ -23,8 +23,9 @@ estadisticas_venta_dia = Blueprint('estadisticas_venta_dia', __name__)
 estadisticas_agentes_mensual = Blueprint('estadisticas_agentes_mensual', __name__)
 ventas_agente_semana_actual = Blueprint('ventas_agente_semana_actual', __name__)
 buscar_codigo_postal = Blueprint('buscar_codigo_postal', __name__)
-
-
+mostrar_por_fecha_leader = Blueprint('buscar_por_fecha_leader', __name__)
+filtro_tabla_leader = Blueprint('filtro_tabla_leader', __name__)
+mostrar_por_intervalo_leader = Blueprint("mostrar_por_intervalo_leader", __name__)
 
 # RUTAS GET
 @descargar_ventas_realizadas.route('/descargar-ventas/', methods=['GET'])
@@ -77,6 +78,11 @@ def get_editar_venta_team_leader():
 def mostrar_tabla_venta():
    return con_venta.venta_por_fecha()
 
+@mostrar_por_fecha_leader.route('/mostrar-por-fecha-leader/', methods=['POST'])
+@cross_origin()
+def mostrar_tabla_venta():
+   return con_venta.venta_por_fecha_leader()
+
 @mostrar_por_estado.route('/mostrar-por-estado/', methods=['POST'])
 @cross_origin()
 def mostrar_tabla_venta_estado():
@@ -87,10 +93,20 @@ def mostrar_tabla_venta_estado():
 def post_filtrar_tabla():
    return con_venta.filtrar_tabla()
 
+@filtro_tabla_leader.route('/filtrar-tabla-leader/', methods=['POST'])
+@cross_origin()
+def mostrar_filtro_leader():
+   return con_venta.tabla_filtro_leader()
+
 @mostrar_por_intervalo.route('/mostrar-por-intervalo/', methods=['POST'])
 @cross_origin()
 def mostrar_tabla_venta_intervalo():
    return con_venta.venta_por_intervalo()
+
+@mostrar_por_intervalo_leader.route('/mostrar-por-intervalo-leader/', methods=['POST'])
+@cross_origin()
+def mostrar_tabla_venta_intervalo_leader():
+   return con_venta.venta_por_intervalo_leader()
 
 @estadisticas_venta_dia.route('/estadisticas-venta-dia/', methods=['GET'])
 @cross_origin()
