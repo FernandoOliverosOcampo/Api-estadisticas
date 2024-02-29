@@ -54,7 +54,7 @@ class Agente():
             fecha_actual, primer_dia_semana, ultimo_dia_semana, dias_transcurridos, dias_transcurridos_mes, mes_actual = self.datos_fecha()
 
             # Cantidad de ventas según su estado
-            ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad = self.cant_ventasX_estado(response_data, mes_actual)
+            ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad, ventas_no_recuperable = self.cant_ventasX_estado(response_data, mes_actual)
 
             # Obtener las ventas que se realizaron en la semana actual
             ventas_semana_actual = self.ventas_semana_actual(response_data, primer_dia_semana, ultimo_dia_semana)
@@ -139,7 +139,8 @@ class Agente():
                 "ventas_recuperada": ventas_recuperada,
                 "ventas_pendiente": ventas_pendiente,
                 "ventas_cumple_calidad": ventas_cumple_calidad,
-                "ventas_no_cumple_calidad": ventas_no_cumple_calidad
+                "ventas_no_cumple_calidad": ventas_no_cumple_calidad,
+                "ventas_no_recuperable" : ventas_no_recuperable
             })
 
         except Exception as e:
@@ -214,7 +215,7 @@ class Agente():
     def datos_fecha(self):
         # Obtener la fecha actual
         fecha_actual = datetime.now()
-        print("fecha desde funcion", fecha_actual)
+
         # Obtener el primer día de la semana actual (lunes)
         primer_dia_semana = fecha_actual - timedelta(days = fecha_actual.weekday())
         primer_dia_semana = primer_dia_semana.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
@@ -293,6 +294,7 @@ class Agente():
         ventas_recuperada = []
         ventas_cumple_calidad = []
         ventas_no_cumple_calidad = []
+        ventas_no_recuperable = []
 
 
         for venta in response_data:
@@ -346,4 +348,10 @@ class Agente():
             if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "no cumple calidad":
                 ventas_no_cumple_calidad.append(venta)
 
-        return ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad
+            # Filtro de ventas según el estado "pendiente"
+            if formato_fecha.year == 2024 and formato_fecha.month == mes_actual and venta['estado'] == "no recuperable":
+                ventas_no_cumple_calidad.append(venta)
+
+                
+
+        return ventas_activas, ventas_temporal, ventas_baja, ventas_firmado, ventas_verificado, ventas_cancelada, ventas_desistimiento, ventas_devuelta, ventas_pendiente, ventas_recuperada, ventas_cumple_calidad, ventas_no_cumple_calidad, ventas_no_recuperable
