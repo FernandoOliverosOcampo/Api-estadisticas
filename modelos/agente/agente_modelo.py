@@ -21,6 +21,7 @@ class Agente():
             response_data = response.data
 
             return jsonify({
+                "id_agente": response_data[0]['id_agente'],
                 "cedula": response_data[0]['cedula'],
                 "nombre": response_data[0]['nombre'],
                 "celular":response_data[0]['celular'],
@@ -59,15 +60,15 @@ class Agente():
             # Obtener las ventas que se realizaron en la semana actual
             ventas_semana_actual = self.ventas_semana_actual(response_data, primer_dia_semana, ultimo_dia_semana)
 
-            total_ventas_mes_actual = len(self.ventas_mes_actual(response_data))
+            total_ventas_mes_actual = len(self.ventas_mes_actual(response_data, mes_actual))
 
             #Todas las ventas realizadas por el agente
             ventas_realizadas = []
 
             #Ventas según el mes
-            ventas_diciembre = []
             ventas_enero = []
             ventas_febrero = []
+            ventas_marzo = []
             ventas_dia_actual = []
 
             #Las ventas totales que ha realizado el asesor
@@ -79,16 +80,16 @@ class Agente():
                 formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
 
                 # Mes diciembre
-                if formato_fecha.month == 12:
-                    ventas_diciembre.append(ventas_realizadas[i])
-
-                # Mes Enero
                 if formato_fecha.month == 1:
                     ventas_enero.append(ventas_realizadas[i])
 
-                # Mes Febrero
+                # Mes Enero
                 if formato_fecha.month == 2:
                     ventas_febrero.append(ventas_realizadas[i])
+
+                # Mes Febrero
+                if formato_fecha.month == 3:
+                    ventas_marzo.append(ventas_realizadas[i])
                 
                 
             for i in range(0, len(ventas_realizadas), 1):
@@ -103,13 +104,13 @@ class Agente():
             cant_ventas = len(response_data)
             cant_ventas_semana = len(ventas_semana_actual)
             cant_ventas_realizadas = len(response_data)
+            cant_ventas_marzo = len(ventas_marzo)
             cant_ventas_febrero = len(ventas_febrero)
-            cant_ventas_diciembre = len(ventas_diciembre)
             cant_ventas_enero = len(ventas_enero)
 
             # Principales
             prom_venta_semana_actual = round(cant_ventas_semana / dias_transcurridos, 2)
-            prom_venta_mes_actual = round(len(ventas_febrero) / dias_transcurridos_mes, 2)
+            prom_venta_mes_actual = round(len(ventas_marzo) / dias_transcurridos_mes, 2) # MODIFICAR
             prom_ventas_diarias = round(prom_venta_mes_actual/ dias_transcurridos_mes, 2)
             cant_ventas_restantes = 26 - total_ventas_mes_actual
             porcCumplirMeta = round((total_ventas_mes_actual / 26) * 100)
@@ -120,9 +121,9 @@ class Agente():
                 "cant_ventas_semana_actual": cant_ventas_semana,
                 "cant_ventas_mes_actual": total_ventas_mes_actual,
                 "cant_ventas_realizadas" : cant_ventas_realizadas,
-                "cant_ventas_diciembre" : cant_ventas_diciembre,
                 "cant_ventas_enero" : cant_ventas_enero,
                 "cant_ventas_febrero" : cant_ventas_febrero,
+                "cant_ventas_marzo" : cant_ventas_marzo,
                 "cant_ventas_restantes": cant_ventas_restantes,
                 "porcCumplirMeta": porcCumplirMeta,
                 "prom_venta_semana_actual": prom_venta_semana_actual,
@@ -193,24 +194,66 @@ class Agente():
                 "celular": request.json.get('celular'),
                 "campana": request.json.get('campana'),
                 "lider_responsable": request.json.get('lider_responsable'),
-                "lider_equipo":  request.json.get('lider_equipo')
+                "lider_equipo":  request.json.get('lider_equipo'),
             }
 
-            apodo = request.json.get('apodo')
+            id_agente = request.json.get('id_agente')
 
             campos_vacios = diccionario_vacio(data_dict)
 
             if campos_vacios:
                 return jsonify({"registrar_agente_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
             
-            supabase.table(tabla_agentes_produccion).update(data_dict).eq('apodo', apodo).execute()
+            supabase.table(tabla_agentes_produccion).update(data_dict).eq('id_agente', id_agente).execute()
 
             return jsonify({"actualizar_agente": "OK"}), 200
         
         except Exception as e:
             print("Ocurrió un error:", e)
             return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
+
+    # Actualiza la información relacionada a un usuario
+    # /cambiar-contrasena/
+    def cambiar_contrasena(self):
+
+        try:
+            data_dict ={
+                "contrasena": request.json.get('contrasena'),
+            }
+
+            id_agente = request.json.get('id_agente')
+
+            campos_vacios = diccionario_vacio(data_dict)
+
+            if campos_vacios:
+                return jsonify({"cambiar_contraseña_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
+            
+            supabase.table(tabla_agentes_produccion).update(data_dict).eq('id_agente', id_agente).execute()
+
+            return jsonify({"cambiar_contraseña": "OK"}), 200
+        
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
     
+    # Elimina un usuario desde su id 
+    # /eliminar-usuario/<id>
+    def eliminar_usuario(self, id_agente):
+        try:
+            response = supabase.table(tabla_agentes_produccion).select("*").eq('id_agente', id_agente).execute()
+
+            if len(response.data) == 0:
+                return jsonify({"eliminacion_usuario_status": "error", "mensaje": "ese id de usuario no existe"}), 200
+            
+            else:
+                supabase.table(tabla_agentes_produccion).delete().eq('id_agente', id_agente).execute()
+                return jsonify({"eliminacion_usuario_status": "OK"}), 200
+
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
+
+
     # Funciones
     def datos_fecha(self):
         # Obtener la fecha actual
@@ -262,10 +305,10 @@ class Agente():
 
         return ventas_semana_actual
 
-    def ventas_mes_actual(self, response_data):
+    def ventas_mes_actual(self, response_data, mes_actual):
 
         ventas_realizadas = []
-        ventas_febrero = []
+        ventas_mes_actual = []
 
         #Las ventas totales que ha realizado el asesor
         for i in range(0, len(response_data), 1):
@@ -276,10 +319,10 @@ class Agente():
             formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
 
             # Mes diciembre
-            if formato_fecha.month == 2:
-                ventas_febrero.append(ventas_realizadas[i])
+            if formato_fecha.month == mes_actual:
+                ventas_mes_actual.append(ventas_realizadas[i])
 
-        return ventas_febrero
+        return ventas_mes_actual
 
     def cant_ventasX_estado(self, response_data, mes_actual):
         ventas_activas = []

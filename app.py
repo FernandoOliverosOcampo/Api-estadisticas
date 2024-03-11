@@ -18,7 +18,9 @@ app.register_blueprint(descargar_ventas_realizadas)
 app.register_blueprint(mostrar_datos_personales)
 app.register_blueprint(estadisticas)
 app.register_blueprint(registrar_agente)
+app.register_blueprint(cambiar_contrasena)
 app.register_blueprint(actualizar_agente)
+app.register_blueprint(eliminar_usuario)
 
 # VENTA
 app.register_blueprint(mostrar_todas_ventas_realizadas)
@@ -48,6 +50,8 @@ app.register_blueprint(mostrar_por_intervalo_leader)
 # TEAM LEADER
 app.register_blueprint(agentes_pertenecientes)
 app.register_blueprint(info_equipo)
+app.register_blueprint(lista_agentes)
+app.register_blueprint(traer_usuarios)
 
 
 #Pagina de error

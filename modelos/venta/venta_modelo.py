@@ -72,10 +72,11 @@ class Venta():
             ventas_realizadas =[]
 
             #Ventas según el mes
-            ventas_noviembre = []
             ventas_diciembre = []
             ventas_enero = []
             ventas_febrero = []
+            ventas_marzo = []
+
 
             #Las ventas totales que ha realizado el asesor
             for i in range(0, len(response_data), 1):
@@ -84,10 +85,6 @@ class Venta():
             #Filtro de ventas según los meses
             for i in range(0, len(ventas_realizadas), 1):
                 formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
-
-                # Mes noviembre
-                if formato_fecha.month == 11:   
-                    ventas_noviembre.append(ventas_realizadas[i])
 
                 # Mes diciembre
                 if formato_fecha.month == 12:
@@ -101,8 +98,12 @@ class Venta():
                 if formato_fecha.month == 2:
                     ventas_febrero.append(ventas_realizadas[i])
 
+                # Mes marzo
+                if formato_fecha.month == 3:   
+                    ventas_marzo.append(ventas_realizadas[i])
+
             cant_ventas_totales_realizadas = len(ventas_realizadas)
-            cant_ventas_totales_noviembre = len(ventas_noviembre)
+            cant_ventas_totales_marzo = len(ventas_marzo)
             cant_ventas_totales_diciembre = len(ventas_diciembre)
             cant_ventas_totales_enero = len(ventas_enero)
             cant_ventas_totales_febrero = len(ventas_febrero)
@@ -112,8 +113,8 @@ class Venta():
                             "cant_ventas_realizadas": cant_ventas_totales_realizadas,
                             "ventas_febrero": ventas_febrero,
                             "cant_ventas_febrero": cant_ventas_totales_febrero,
-                            "ventas_noviembre": ventas_noviembre,
-                            "cant_ventas_noviembre": cant_ventas_totales_noviembre,
+                            "ventas_marzo": ventas_marzo,
+                            "cant_ventas_marzo": cant_ventas_totales_marzo,
                             "ventas_diciembre": ventas_diciembre,
                             "cant_ventas_diciembre": cant_ventas_totales_diciembre,
                             "ventas_enero" : ventas_enero,
@@ -136,6 +137,7 @@ class Venta():
                 "nombre": request.json.get('nombre'),
                 "dni": request.json.get('dni'),
                 "telefono": request.json.get('telefono'),
+                "telefono_fijo": request.json.get('telefono_fijo'),
                 "correo": request.json.get('correo'),
                 "direccion": request.json.get('direccion'),
                 "fecha_nacimiento": request.json.get('fecha_nacimiento'),
@@ -234,7 +236,8 @@ class Venta():
                 "calidad_enviada": request.json.get('calidad_enviada'),
                 "observaciones_calidad": request.json.get('observaciones_calidad'),
                 "audios_cargados": request.json.get('audios_cargados'),
-                "legalizacion": request.json.get('legalizacion')
+                "legalizacion": request.json.get('legalizacion'),
+                "estado": request.json.get('estado')
             }
 
             id_venta = request.json.get('id_venta')
@@ -305,7 +308,6 @@ class Venta():
             }
 
             id_venta = request.json.get('id_venta')
-            nombre_agente = request.json.get('nombre_agente')
 
             campos_vacios = diccionario_vacio(data_dict)
 
@@ -428,29 +430,41 @@ class Venta():
     
     # Filtra la tabla de administrador según un intervalo de fechas
     # /mostrar-por-intervalo/
+
     def mostrar_venta_por_intervalo(self):
         try:
             fecha_inicial_str = request.json.get("fecha_inicial")
             fecha_final_str = request.json.get("fecha_final")
-
+            
             # Validación de datos de entrada
             if not fecha_inicial_str or not fecha_final_str:
                 return jsonify({"error": "Las fechas de inicio y fin son requeridas"}), 400
+
+            # Convertir cadenas de fecha en objetos de fecha
+            fecha_inicial = datetime.strptime(fecha_inicial_str, '%d/%m/%Y')
+            fecha_final = datetime.strptime(fecha_final_str, '%d/%m/%Y')
+
+            print(fecha_inicial)
+            print(fecha_final)
 
             # Realizar la consulta a Supabase
             response = supabase.table(tabla_ventas_produccion).select("*").order('id.desc').execute()
 
             # Filtrar las ventas en el intervalo de fechas y que pertenezcan al mismo mes y año
-            ventas_en_intervalo = [venta for venta in response.data if 
-                                fecha_inicial_str <= venta['fecha_ingreso_venta'] <= fecha_final_str and 
-                                venta['fecha_ingreso_venta'][3:5] == fecha_inicial_str[3:5] and 
-                                venta['fecha_ingreso_venta'][6:] == fecha_inicial_str[6:]]
-
+            ventas_en_intervalo = [
+                venta for venta in response.data 
+                if fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
+                and fecha_inicial.month == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month
+                and fecha_inicial.year == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year
+                or fecha_final.month == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month
+                and fecha_final.year == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year
+            ]
             # Devolver los resultados de la consulta
             return jsonify({"ventas": ventas_en_intervalo}), 200
 
         except Exception as e:
             return jsonify({"error": "Ocurrió un error al procesar la solicitud"}), 500
+
 
     # Filtra la tabla de administrador según un intervalo de fechas
     # /mostrar-por-intervalo/
@@ -463,16 +477,23 @@ class Venta():
             # Validación de datos de entrada
             if not fecha_inicial_str or not fecha_final_str:
                 return jsonify({"error": "Las fechas de inicio y fin son requeridas"}), 400
+            
+                        # Convertir cadenas de fecha en objetos de fecha
+            fecha_inicial = datetime.strptime(fecha_inicial_str, '%d/%m/%Y')
+            fecha_final = datetime.strptime(fecha_final_str, '%d/%m/%Y')
+
 
             # Realizar la consulta a Supabase
             response = supabase.table(tabla_ventas_produccion).select("*").eq('lider_equipo', leader_buscar).order('id.desc').execute()
-
             # Filtrar las ventas en el intervalo de fechas y que pertenezcan al mismo mes y año
-            ventas_en_intervalo = [venta for venta in response.data if 
-                                fecha_inicial_str <= venta['fecha_ingreso_venta'] <= fecha_final_str and 
-                                venta['fecha_ingreso_venta'][3:5] == fecha_inicial_str[3:5] and 
-                                venta['fecha_ingreso_venta'][6:] == fecha_inicial_str[6:]]
-
+            ventas_en_intervalo = [
+                venta for venta in response.data 
+                if fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
+                and fecha_inicial.month == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month
+                and fecha_inicial.year == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year
+                or fecha_final.month == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month
+                and fecha_final.year == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year
+            ]
             # Devolver los resultados de la consulta
             return jsonify({"ventas": ventas_en_intervalo}), 200
 

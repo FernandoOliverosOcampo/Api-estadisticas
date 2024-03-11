@@ -11,10 +11,19 @@ class AgenteControlador():
     def estadisticas(self, cedula):
         query = mod_agente.estadisticas(cedula)
         return query
+    
     def registro_de_agente(self):
         query = mod_agente.registro_agentes()
         return query
     
+    def cambiar_contrasena(self):
+        query = mod_agente.cambiar_contrasena()
+        return query
+    
     def actualizar_agente(self):
         query = mod_agente.actualizar_agente()
+        return query
+    
+    def eliminar_usuario(self, id_agente):
+        query = mod_agente.eliminar_usuario(id_agente)
         return query

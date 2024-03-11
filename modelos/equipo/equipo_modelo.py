@@ -32,9 +32,9 @@ class Equipo():
             ventas_realizadas =[]
 
             #Ventas según el mes
-            ventas_diciembre = []
             ventas_enero = []
             ventas_febrero = []
+            ventas_marzo = []
 
             #Las ventas totales que ha realizado el asesor
             for i in range(0, len(response_data), 1):
@@ -44,10 +44,6 @@ class Equipo():
             for i in range(0, len(ventas_realizadas), 1):
                 formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
 
-                # Mes diciembre
-                if formato_fecha.month == 12:
-                    ventas_diciembre.append(ventas_realizadas[i])
-
                 # Mes Enero
                 if formato_fecha.month == 1:
                     ventas_enero.append(ventas_realizadas[i])
@@ -56,19 +52,23 @@ class Equipo():
                 if formato_fecha.month == 2:
                     ventas_febrero.append(ventas_realizadas[i])
 
+                # Mes Marzo
+                if formato_fecha.month == 3:
+                    ventas_marzo.append(ventas_realizadas[i])
+
             #Finales
                     
             # Obtener las ventas que se realizaron en la semana actual
             ventas_semana_actual = self.ventas_semana_actual(response_data, primer_dia_semana, ultimo_dia_semana)
 
-            total_ventas_mes_actual = len(self.ventas_mes_actual(response_data))
+            total_ventas_mes_actual = len(self.ventas_mes_actual(response_data, mes_actual))
 
             # En ventas
             cant_ventas = len(response_data)
             cant_ventas_semana = len(ventas_semana_actual)
             cant_ventas_realizadas = len(response_data)
             cant_ventas_febrero = len(ventas_febrero)
-            cant_ventas_diciembre = len(ventas_diciembre)
+            cant_ventas_marzo = len(ventas_marzo)
             cant_ventas_enero = len(ventas_enero)
 
             # Principales
@@ -81,9 +81,9 @@ class Equipo():
                 "cant_ventas_semana_actual": cant_ventas_semana,
                 "cant_ventas_mes_actual": total_ventas_mes_actual,
                 "cant_ventas_realizadas" : cant_ventas_realizadas,
-                "cant_ventas_diciembre" : cant_ventas_diciembre,
                 "cant_ventas_enero" : cant_ventas_enero,
                 "cant_ventas_febrero" : cant_ventas_febrero,
+                "cant_ventas_marzo" : cant_ventas_marzo,
                 "prom_venta_semana_actual": prom_venta_semana_actual,
                 "prom_venta_mes_actual": prom_venta_mes_actual,
                 "prom_ventas_diarias": prom_ventas_diarias,
@@ -158,7 +158,35 @@ class Equipo():
         except Exception as e:
             print("Ocurrió un error:", e)
             return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500 
-    
+        
+    # Trae todos los agentes pertenecientes a un lider de equipo junto con sus ventas realizadas
+    # /lista-agentes/<lider_equipo>
+    def lista_agentes(self, lider_equipo):
+        try:
+            if lider_equipo is None or lider_equipo == "":
+                return jsonify({"error" : "campo lider_equipo vacío"}), 401
+
+            info_agentes = supabase.table(tabla_agentes_produccion).select("*").eq("lider_equipo", lider_equipo).order('id_agente.desc').execute()
+            cant_usuarios = len(info_agentes.data)
+            return jsonify({"lista_agentes": info_agentes.data, "cant_usuarios": cant_usuarios}), 200
+        
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500 
+        
+    # Trae todos los agentes pertenecientes a un lider de equipo junto con sus ventas realizadas
+    # /traer-usuarios/
+    def traer_usuarios(self):
+        try:
+
+            usuarios = supabase.table(tabla_agentes_produccion).select("*").order('id_agente.desc').execute()
+            cant_usuarios = len(usuarios.data)
+            return jsonify({"usuarios": usuarios.data, "cant_usuarios": cant_usuarios}), 200
+        
+        except Exception as e:
+            print("Ocurrió un error:", e)
+            return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500 
+
     # Funciones
     def cant_ventasX_estado(self, response_data, mes_actual):
         ventas_activas = []
@@ -245,10 +273,10 @@ class Equipo():
 
         return ventas_semana_actual
 
-    def ventas_mes_actual(self, response_data):
+    def ventas_mes_actual(self, response_data, mes_actual):
 
         ventas_realizadas = []
-        ventas_febrero = []
+        ventas_mes_actual = []
 
         #Las ventas totales que ha realizado el asesor
         for i in range(0, len(response_data), 1):
@@ -259,10 +287,10 @@ class Equipo():
             formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
 
             # Mes diciembre
-            if formato_fecha.month == 2:
-                ventas_febrero.append(ventas_realizadas[i])
+            if formato_fecha.month == mes_actual:
+                ventas_mes_actual.append(ventas_realizadas[i])
 
-        return ventas_febrero
+        return ventas_mes_actual
 
     def datos_fecha(self):
         # Obtener la fecha actual
