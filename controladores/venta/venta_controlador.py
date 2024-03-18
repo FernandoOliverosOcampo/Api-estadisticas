@@ -56,8 +56,8 @@ class VentaControlador():
         query = mod_venta.editar_venta_team_leader()
         return query
     
-    def eliminar_venta(self, id):
-        query = mod_venta.eliminar_venta(id)
+    def eliminar_venta(self):
+        query = mod_venta.eliminar_venta()
         return query
     
     def venta_por_fecha(self):

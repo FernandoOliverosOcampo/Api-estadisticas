@@ -24,6 +24,6 @@ class AgenteControlador():
         query = mod_agente.actualizar_agente()
         return query
     
-    def eliminar_usuario(self, id_agente):
-        query = mod_agente.eliminar_usuario(id_agente)
+    def eliminar_usuario(self):
+        query = mod_agente.eliminar_usuario()
         return query

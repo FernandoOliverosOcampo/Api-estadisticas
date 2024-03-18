@@ -63,10 +63,10 @@ def edito_venta_calidad():
 def edito_estado_venta():
    return con_venta.editar_estado_venta()
 
-@eliminar_venta.route('/eliminar-venta/<id>', methods=['DELETE'])
+@eliminar_venta.route('/eliminar-venta/', methods=['DELETE'])
 @cross_origin()
-def delete_eliminar_venta(id):
-   return con_venta.eliminar_venta(id)
+def delete_eliminar_venta():
+   return con_venta.eliminar_venta()
 
 @editar_venta_team_leader.route('/editar-venta-team-leader/', methods=['PUT'])
 @cross_origin()

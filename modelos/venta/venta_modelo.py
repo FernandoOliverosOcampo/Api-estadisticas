@@ -8,7 +8,7 @@ class Venta():
     # Descarga todas las ventas con id's mayor a 1000
     # /descargar-ventas/
     def descargar_ventas_realizadas(self):
-            
+
         try:
             csv_filename= '/home/equitisoporte/Api-estadisticas/ventas_realizadas.csv'
             #csv_filename = 'ventas_realizadas.csv'
@@ -31,7 +31,7 @@ class Venta():
 
             # Descargar el archivo CSV
             return send_file(archivo_csv, as_attachment = True), 200
-                    
+
         except Exception as e:
             print("Ocurrió un error:", e)
             return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
@@ -41,33 +41,33 @@ class Venta():
     def mostrar_todas_ventas_realizadas(self):
 
         try:
-            response = supabase.table(tabla_ventas_produccion).select("*").gt('id', cant_ventas_mostrar).order('id.desc').execute()
+            response = supabase.table(tabla_ventas_produccion).select("*").gt('id', 1500).order('id.desc').execute()
 
             if (len(response.data) == 0):
                 return jsonify({"res" : "No hay registros en esta tabla"}), 200
-            
+
             else:
 
                 return jsonify({
                     "ventas": response.data
                 }), 200
-            
+
         except Exception as e:
             print("Ocurrió un error:", e)
             return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
-    
+
     # Muesstra todos las ventas relacionados a un agente con su cédula
     # /mostrar-ventas-realizadas/<cedula>
     def mostrar_ventas_realizadas(self, cedula):
-            
+
         try:
             response = supabase.table(tabla_ventas_produccion).select("*").eq('cedula', cedula).order('id.desc').execute()
-            
+
             if (len(response.data) == 0):
                 return jsonify({"mostrar_ventas_realizadas_agente_status" : "No existe la cedula o no ha realizado ventas"})
-        
+
             response_data = response.data
-            
+
             #Todas las ventas realizadas por el agente
             ventas_realizadas =[]
 
@@ -81,7 +81,7 @@ class Venta():
             #Las ventas totales que ha realizado el asesor
             for i in range(0, len(response_data), 1):
                 ventas_realizadas.append(response_data[i])
-                
+
             #Filtro de ventas según los meses
             for i in range(0, len(ventas_realizadas), 1):
                 formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
@@ -99,7 +99,7 @@ class Venta():
                     ventas_febrero.append(ventas_realizadas[i])
 
                 # Mes marzo
-                if formato_fecha.month == 3:   
+                if formato_fecha.month == 3:
                     ventas_marzo.append(ventas_realizadas[i])
 
             cant_ventas_totales_realizadas = len(ventas_realizadas)
@@ -120,11 +120,11 @@ class Venta():
                             "ventas_enero" : ventas_enero,
                             "cant_ventas_enero": cant_ventas_totales_enero
                             })
-        
+
         except Exception as e:
             print("Ocurrió un error:", e)
             return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
-    
+
     # Registra los datos de una venta
     # /registrar-venta/
     def registrar_venta(self):
@@ -166,13 +166,24 @@ class Venta():
                 "legalizacion": request.json.get('legalizacion'),
             }
 
-            campos_vacios = diccionario_vacio(datos_dict)
+            cedula = request.json.get('cedula')
 
+            # Datos del usuario que hace la acción (agrega un registro)
+            datos_usuario = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
+            usuario = datos_usuario.data[0]['usuario']
+
+            # Comprobación de que no estén vacios los campos
+            campos_vacios = diccionario_vacio(datos_dict)
             if campos_vacios:
                 return jsonify({"registrar_venta_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
-            
+
             else:
-                supabase.table(tabla_ventas_produccion).insert(datos_dict).execute()
+                # Se ingresa la venta
+                res = supabase.table(tabla_ventas_produccion).insert(datos_dict).execute()
+
+                # Luego de insertar el registro, se saca el ID (de la venta creda) que devuelve la respuesta de la petición
+                id_venta = res.data[0]['id']
+                guardar_historial('VENTAS_REALIZADAS', id_venta, "nueva venta", usuario, datos_dict)
 
                 return jsonify({"insertar_venta_status": "OK"}), 200
 
@@ -184,12 +195,13 @@ class Venta():
     # /editar-venta/
     def editar_venta(self):
 
-        try:     
+        try:
             data_dict = {
                 "compania": request.json.get('compania'),
                 "nombre": request.json.get('nombre'),
                 "dni": request.json.get('dni'),
                 "telefono": request.json.get('telefono'),
+                "telefono_fijo": request.json.get('telefono_fijo'),
                 "correo": request.json.get('correo'),
                 "direccion": request.json.get('direccion'),
                 "fecha_nacimiento": request.json.get('fecha_nacimiento'),
@@ -199,6 +211,7 @@ class Venta():
                 "numero_contrato": request.json.get('numero_contrato'),
                 "potencia": request.json.get('potencia'),
                 "peaje_gas": request.json.get('peaje_gas'),
+                "tipo_mantenimiento": request.json.get('tipo_mantenimiento'),
                 "verificacion_calidad": request.json.get('verificacion_calidad'),
                 "llamada_calidad": request.json.get('llamada_calidad'),
                 "calidad_enviada": request.json.get('calidad_enviada'),
@@ -210,17 +223,38 @@ class Venta():
             }
 
             id_venta = request.json.get('id_venta')
+            cedula = request.json.get('cedula_usuario')
 
             campos_vacios = diccionario_vacio(data_dict)
 
             if campos_vacios:
                 return jsonify({"editar_venta_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
-            
+
             else:
+                # Datos del usuario que hace la acción (actualizar el estado de la venta)
+                datos_usuario = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
+                usuario = datos_usuario.data[0]['usuario']
+
+                # Datos de la venta antes de actualizarla
+                # AGREGAR TELEFONO FIJO
+                datos_venta_actualizar = supabase.table(tabla_ventas_produccion).select("compania", "nombre", "dni", "telefono", "telefono_fijo", "correo", "direccion", 
+                "fecha_nacimiento", "cups_luz", "cups_gas", "iban", "numero_contrato", 
+                "potencia", "peaje_gas", "tipo_mantenimiento", "verificacion_calidad", "llamada_calidad", 
+                "calidad_enviada", "observaciones_calidad", "audios_cargados", 
+                "estado", "observaciones_adicionales", "legalizacion").eq('id', id_venta).execute()
+
+                # Registro final de los datos nuevos vs los datos anteriores
+                registro_anterior = datos_venta_actualizar.data
+                registro_nuevo = data_dict
+
+                # JSON con los cambios detectados
+                cambios = comparar_informacion(registro_anterior, registro_nuevo)
+
                 supabase.table(tabla_ventas_produccion).update(data_dict).eq('id', id_venta).execute()
+                guardar_historial('VENTAS_REALIZADAS', id_venta, "actualizacion de venta", usuario, cambios)
 
                 return jsonify({"editar_venta_status": "OK"}), 200
-        
+
         except Exception as e:
             print("Ocurrió un error:", e)
             return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
@@ -241,21 +275,37 @@ class Venta():
             }
 
             id_venta = request.json.get('id_venta')
+            cedula = request.json.get('cedula_usuario')
 
             campos_vacios = diccionario_vacio(data_dict)
 
             if campos_vacios:
                 return jsonify({"editar_venta_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
-            
+
             else:
+                # Datos del usuario que hace la acción (actualizar el estado de la venta)
+                datos_usuario = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
+                usuario = datos_usuario.data[0]['usuario']
+
+                # Datos de la venta antes de actualizarla
+                datos_venta_actualizar = supabase.table(tabla_ventas_produccion).select("audios_cargados", "legalizacion", "estado", "verificacion_calidad", "llamada_calidad", "calidad_enviada", "observaciones_calidad", ).eq('id', id_venta).execute()
+
+                # Registro final de los datos nuevos vs los datos anteriores
+                registro_anterior = datos_venta_actualizar.data
+                registro_nuevo = data_dict
+
+                # JSON con los cambios detectados
+                cambios = comparar_informacion(registro_anterior, registro_nuevo)
+
                 supabase.table(tabla_ventas_produccion).update(data_dict).eq('id', id_venta).execute()
-                
+                guardar_historial('VENTAS_REALIZADAS', id_venta, "actualizacion de venta", usuario, cambios)
+
                 return jsonify({"editar_venta_calidad": "OK"}), 200
-        
+
         except Exception as e:
             print("Ocurrió un error:", e)
             return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
-    
+
     # Edita el estado de una venta (desde la tabla)
     # /editar-venta-estado/
     def editar_estado_venta(self):
@@ -266,31 +316,59 @@ class Venta():
             }
 
             id_venta = request.json.get('id_venta')
+            cedula = request.json.get('cedula_usuario')
 
-            campos_vacios = diccionario_vacio(data_dict)
+            # Datos del usuario que hace la acción (actualizar el estado de la venta)
+            datos_usuario = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
+            usuario = datos_usuario.data[0]['usuario']
 
-            if campos_vacios:
-                return jsonify({"editar_estado_venta_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
-            
+            # Datos de la venta antes de actualizarla
+            datos_venta_actualizar = supabase.table(tabla_ventas_produccion).select("estado").eq('id', id_venta).execute()
+
+            # Registro final de los datos nuevos vs los datos anteriores
+            registro_anterior = datos_venta_actualizar.data
+            registro_nuevo = data_dict
+
+            # JSON con los cambios detectados
+            cambios = comparar_informacion(registro_anterior, registro_nuevo)
+
             supabase.table(tabla_ventas_produccion).update(data_dict).eq('id', id_venta).execute()
-                
-            return jsonify({"estado_venta": "OK"})
-        
+            guardar_historial('VENTAS_REALIZADAS', id_venta, "actualizacion de estado", usuario, cambios)
+
+            return jsonify({"actualizar_estado_venta": "OK"})
+
         except Exception as e:
             print("Ocurrió un error:", e)
             return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
-    
-    # Elimina un registro desde su id 
-    # /eliminar-venta/<id>
-    def eliminar_venta(self, id):
-        try:
-            response = supabase.table(tabla_ventas_produccion).select("*").eq('id', id).execute()
 
-            if len(response.data) == 0:
-                return jsonify({"eliminacion_venta_status": "error", "mensaje": "ese id de venta no existe"}), 200
+    # Elimina un registro desde su id
+    # /eliminar-venta/<id>
+    def eliminar_venta(self):
+
+        try:
+            id_venta = request.json.get('id_venta')
+            cedula = request.json.get('cedula_usuario')
+
+            # Datos de la venta antes de eliminarla
+            datos_venta_eliminar = supabase.table(tabla_ventas_produccion).select("compania", "nombre", "dni", "telefono", "telefono_fijo", "correo", "direccion", 
+            "fecha_nacimiento", "cups_luz", "cups_gas", "iban", "numero_contrato", 
+            "potencia", "peaje_gas", "tipo_mantenimiento", "verificacion_calidad", "llamada_calidad", 
+            "calidad_enviada", "observaciones_calidad", "audios_cargados", 
+            "estado", "observaciones_adicionales", "legalizacion").eq('id', id_venta).execute()
+            cambios = datos_venta_eliminar.data[0]
             
+            # Comprobación de que la ID de la venta exista
+            if len(datos_venta_eliminar.data) == 0:
+                return jsonify({"eliminacion_venta_status": "error", "mensaje": "ese id de venta no existe"}), 200
+
             else:
-                supabase.table(tabla_ventas_produccion).delete().eq('id', id).execute()
+                # Datos del usuario que hace la acción (elimina el registro)
+                datos_usuario = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
+                usuario = datos_usuario.data[0]['usuario']
+
+                supabase.table(tabla_ventas_produccion).delete().eq('id', id_venta).execute()
+                guardar_historial('VENTAS_REALIZADAS', id_venta, "eliminacion de venta", usuario, cambios)
+                
                 return jsonify({"eliminacion_venta_status": "OK"}), 200
 
         except Exception as e:
@@ -300,7 +378,7 @@ class Venta():
     # Edita el estado y observaciones adicionales desde el usuario team_leader
     # /editar-venta-team-leader/
     def editar_venta_team_leader(self):
-        
+
         try:
             data_dict ={
                 "estado": request.json.get('estado'),
@@ -308,33 +386,29 @@ class Venta():
             }
 
             id_venta = request.json.get('id_venta')
+            cedula = request.json.get('cedula_usuario')
 
             campos_vacios = diccionario_vacio(data_dict)
 
             if campos_vacios:
                 return jsonify({"editar_venta_team_leader_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
             
+            # Datos del usuario que hace la acción (elimina el registro)
+            datos_usuario = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
+            usuario = datos_usuario.data[0]['usuario']
+
             #Consultar el registro original
             response = supabase.table(tabla_ventas_produccion).select("estado", "observaciones_adicionales").eq('id', id_venta).execute()
 
-            registro_original = response.data
-            cambios = {}
-            #Comparar el registro original con el nuevo (que se va a editar)
-            for key in registro_original[0]:
-                if registro_original[0][key] != data_dict[key]:
+            registro_anterior = response.data
+            registro_nuevo = data_dict
 
-                    if key == "estado":
-                        cambios['estado_anterior'] = registro_original[0][key]
-                        cambios['estado_nuevo'] = data_dict[key]
-
-                    if key == "observaciones_adicionales":
-                        cambios['observaciones_adicionales_anterior'] = registro_original[0][key]
-                        cambios['observaciones_adicionales_nuevo'] = data_dict[key]
-                else:
-                    print(f"las {key} son la misma")
+            # JSON con los cambios detectados
+            cambios = comparar_informacion(registro_anterior, registro_nuevo)
 
             supabase.table(tabla_ventas_produccion).update(data_dict).eq('id', id_venta).execute()
-            #guardar_historial(tabla_ventas_produccion, 'editar', nombre_agente, cambios)
+            guardar_historial('VENTAS_REALIZADAS', id_venta, "actualizacion de venta", usuario, cambios)
+
             return jsonify({"editar_venta_team_leader_status": "OK"})
 
 
@@ -347,22 +421,22 @@ class Venta():
     def mostrar_venta_por_fecha(self):
 
         try:
-            
+
             fecha = request.json.get("fecha_venta")
 
             if fecha is None or fecha == "":
                 return jsonify({"editar_venta_team_leader_status": "existen campos vacios", "campos_vacios": fecha}), 400
 
             response = supabase.table(tabla_ventas_produccion).select("*").eq("fecha_ingreso_venta", fecha).order('id.desc').execute()
-            
+
             return jsonify({"ventas": response.data}), 200
-           
+
         except requests.exceptions.HTTPError as err:
              print(err)
         return 201
-    
+
     # Muestra los ventas para una fecha en específico
-    # /mostrar-por-fecha/
+    # /mostrar-por-fecha-leader/
     def mostrar_venta_por_fecha_team_leader(self):
 
         try:
@@ -373,13 +447,13 @@ class Venta():
                 return jsonify({"editar_venta_team_leader_status": "existen campos vacios", "campos_vacios": fecha}), 400
 
             response = supabase.table(tabla_ventas_produccion).select("*").eq("fecha_ingreso_venta", fecha).eq("lider_equipo", leader).order('id.desc').execute()
-            
+
             return jsonify({"ventas": response.data}), 200
-           
+
         except requests.exceptions.HTTPError as err:
              print(err)
         return 201
-    
+
     # Muestra las ventas por un estado especifico
     # /mostrar-por-estado/
     def mostrar_venta_por_estado(self):
@@ -391,13 +465,14 @@ class Venta():
                 return jsonify({"editar_venta_team_leader_status": "existen campos vacios", "campos_vacios": estado}), 400
 
             response = supabase.table(tabla_ventas_produccion).select("*").eq("estado", estado).order('id.desc').execute()
-            
+
             return jsonify({"ventas": response.data}), 200
-           
+
         except requests.exceptions.HTTPError as err:
              print(err)
         return 201
-    
+
+    # Filtra las columnas de la tabla ( en general )
     # /filtrar-tabla/
     def filtrar_tabla(self):
 
@@ -408,11 +483,13 @@ class Venta():
             response = supabase.table(tabla_ventas_produccion).select("*").eq(columna_buscar, texto_buscar).order('id.desc').execute()
 
             return jsonify({"ventas": response.data}), 200
-           
+
         except requests.exceptions.HTTPError as err:
              print(err)
         return 201
-    
+
+    # Filtra las columnas de la tabla pero para el team leader
+    #/filtrar-tabla-leader/
     def filtrar_tabla_leader(self):
 
         try:
@@ -423,19 +500,18 @@ class Venta():
             response = supabase.table(tabla_ventas_produccion).select("*").eq(columna_buscar, texto_buscar).eq('lider_equipo', leader_buscar).order('id.desc').execute()
 
             return jsonify({"ventas": response.data}), 200
-           
+
         except requests.exceptions.HTTPError as err:
              print(err)
         return 201
-    
+
     # Filtra la tabla de administrador según un intervalo de fechas
     # /mostrar-por-intervalo/
-
     def mostrar_venta_por_intervalo(self):
         try:
             fecha_inicial_str = request.json.get("fecha_inicial")
             fecha_final_str = request.json.get("fecha_final")
-            
+
             # Validación de datos de entrada
             if not fecha_inicial_str or not fecha_final_str:
                 return jsonify({"error": "Las fechas de inicio y fin son requeridas"}), 400
@@ -452,12 +528,16 @@ class Venta():
 
             # Filtrar las ventas en el intervalo de fechas y que pertenezcan al mismo mes y año
             ventas_en_intervalo = [
-                venta for venta in response.data 
-                if fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
-                and fecha_inicial.month == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month
-                and fecha_inicial.year == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year
-                or fecha_final.month == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month
-                and fecha_final.year == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year
+                venta for venta in response.data
+                if (
+                    fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month == fecha_inicial.month
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year == fecha_inicial.year
+                ) or (
+                    fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month == fecha_final.month
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year == fecha_final.year
+                )
             ]
             # Devolver los resultados de la consulta
             return jsonify({"ventas": ventas_en_intervalo}), 200
@@ -465,34 +545,36 @@ class Venta():
         except Exception as e:
             return jsonify({"error": "Ocurrió un error al procesar la solicitud"}), 500
 
-
     # Filtra la tabla de administrador según un intervalo de fechas
-    # /mostrar-por-intervalo/
+    # /mostrar-por-intervalo-leader/
     def mostrar_venta_por_intervalo_leader(self):
         try:
-            leader_buscar = request.json.get("lider_equipo")
+            lider_equipo = request.json.get("lider_equipo")
             fecha_inicial_str = request.json.get("fecha_inicial")
             fecha_final_str = request.json.get("fecha_final")
 
             # Validación de datos de entrada
             if not fecha_inicial_str or not fecha_final_str:
                 return jsonify({"error": "Las fechas de inicio y fin son requeridas"}), 400
-            
-                        # Convertir cadenas de fecha en objetos de fecha
+
+            # Convertir cadenas de fecha en objetos de fecha
             fecha_inicial = datetime.strptime(fecha_inicial_str, '%d/%m/%Y')
             fecha_final = datetime.strptime(fecha_final_str, '%d/%m/%Y')
 
-
             # Realizar la consulta a Supabase
-            response = supabase.table(tabla_ventas_produccion).select("*").eq('lider_equipo', leader_buscar).order('id.desc').execute()
+            response = supabase.table(tabla_ventas_produccion).select("*").eq('lider_equipo', lider_equipo).order('id.desc').execute()
             # Filtrar las ventas en el intervalo de fechas y que pertenezcan al mismo mes y año
             ventas_en_intervalo = [
-                venta for venta in response.data 
-                if fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
-                and fecha_inicial.month == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month
-                and fecha_inicial.year == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year
-                or fecha_final.month == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month
-                and fecha_final.year == datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year
+                venta for venta in response.data
+                if (
+                    fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month == fecha_inicial.month
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year == fecha_inicial.year
+                ) or (
+                    fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month == fecha_final.month
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year == fecha_final.year
+                )
             ]
             # Devolver los resultados de la consulta
             return jsonify({"ventas": ventas_en_intervalo}), 200
@@ -507,7 +589,7 @@ class Venta():
         try:
             fecha_sistema = datetime.now()
             meses = [1,2,3,4,5,6,7,8,9]
-            
+
             if(fecha_sistema.month in meses):
                 mes_con_cero = f"0{fecha_sistema.month}"
                 fecha_actual = f"{fecha_sistema.day}/{mes_con_cero}/{fecha_sistema.year}"
@@ -519,10 +601,12 @@ class Venta():
 
             ventas_dia_actual = supabase.table(tabla_ventas_produccion).select("nombre_agente", "lider_equipo").eq('fecha_ingreso_venta', fecha_actual).execute()
 
+            print(ventas_dia_actual)
+
             ventas_dia_actual_data = ventas_dia_actual.data
             if len(ventas_dia_actual_data) == 0:
                 return jsonify({"venta_dia_status": "error", "mensaje": "No hay ventas con esa fecha..."}), 200
-            
+
             else:
                 # Número de ventas en el dia actual
                 cant_ventas_dia_actual = len(ventas_dia_actual_data)
@@ -549,7 +633,7 @@ class Venta():
             ventas_realizadas_data = ventas_realizadas.data
             if len(ventas_realizadas_data) == 0:
                 return jsonify({"eliminacion_venta_status": "error", "mensaje": "No hay ventas con esa fecha..."}), 200
-            
+
             else:
                 mes_actual = fecha_sistema.month
                 ventas_mes_actual = []
@@ -579,7 +663,7 @@ class Venta():
                 cant_ventas_mes_actual = len(ventas_mes_actual)
 
                 return jsonify({"mes": mes_actual, "cant_ventas_xagente": frecuencia_nombres, "cant_ventas_xteam_leader": frecuencia_team_leader, "venta_agentes": venta_agentes, "cant_ventas_mes_actual" : cant_ventas_mes_actual}), 200
-            
+
         except Exception as e:
             print("Ocurrió un error:", e)
             return jsonify({"mensaje": "Ocurrió un error al procesar la solicitud."}), 500
@@ -615,7 +699,7 @@ class Venta():
             frecuencia_team_leader = Counter(team_leader['lider_equipo'] for team_leader in ventas_semana_actual)
 
             cant_ventas_semana_actual = len(ventas_semana_actual)
-            
+
             return jsonify({
                 "semana_actual": ventas_semana_actual,
                 "agentes_semana_actual" : frecuencia_nombres,
@@ -636,7 +720,7 @@ class Venta():
 
             response = requests.get(f'https://fzsgnsghygycitueebre.supabase.co/rest/v1/VENTAS_REALIZADAS?cedula=eq.{cedula}&estado=eq.{estado_venta}',
                                     headers = headers)
-            ventas_realizadas = json.loads(response.text)        
+            ventas_realizadas = json.loads(response.text)
 
             return jsonify({
                 "estado_ventas": ventas_realizadas
@@ -644,8 +728,8 @@ class Venta():
 
         except requests.exceptions.HTTPError as err:
                 print(err)
-        return 201 
-    
+        return 201
+
     # Muestra las ventas de un agente en la semana
     def ventas_semana_actual(self, cedula):
 
@@ -670,7 +754,7 @@ class Venta():
                 # Verificar si la venta ocurrió dentro de la semana actual
                 if primer_dia_semana <= formato_fecha <= ultimo_dia_semana:
                         ventas_semana_actual.append(venta)
-            
+
             return jsonify({
                 "semana_actual": ventas_semana_actual
             })
@@ -697,7 +781,7 @@ class Venta():
             for i in range(0, len(ventas_realizadas), 1):
                 formato_fecha = datetime.strptime(ventas_realizadas[i]['fecha_ingreso_venta'], "%d/%m/%Y")
 
-                if formato_fecha.year == int(year) and formato_fecha.month == int(mes):   
+                if formato_fecha.year == int(year) and formato_fecha.month == int(mes):
                     venta_mes_especifico.append(ventas_realizadas[i])
 
             return jsonify({
@@ -706,23 +790,23 @@ class Venta():
 
         except requests.exceptions.HTTPError as err:
                 print(err)
-        return 201 
-    
+        return 201
+
     # NO SE QUE HACEN ACÁ
     # /info-codigo/
     def info_codigo(self):
-        
+
         try:
             codigo = request.json.get('codigo_postal')
-            
+
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        
+
             response = supabase.table('CODIGOS_POSTALES').select("*").eq("codigo_postal", codigo).execute()
             if len(response.data) == 0:
                 return jsonify({
                     "codigo_postal": "No encontrado",
                     })
-            
+
             else:
                 codigo_postal = response.data[0]['codigo_postal']
                 nombre_provincia = response.data[0]['nombre_provincia']

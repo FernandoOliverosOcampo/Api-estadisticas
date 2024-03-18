@@ -5,8 +5,6 @@ from modelos.generales import *
 
 class Agente():
 
-    # Rutas
-
     # Muestra los datos personales de un agente mediante su cedula
     # /mostrar-datos-personales/<cedula>
     def mostrar_datos_personales(self, cedula):
@@ -169,13 +167,23 @@ class Agente():
                 "rol": request.json.get('rol')
             }
 
+            cedula = request.json.get('cedula_usuario')
+
+            # Datos del usuario que hace la acción (agrega un registro)
+            datos_usuario = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
+            usuario = datos_usuario.data[0]['usuario']
+
             campos_vacios = diccionario_vacio(datos_js)
 
             if campos_vacios:
                 return jsonify({"registrar_agente_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
             else:
                 
-                supabase.table(tabla_agentes_produccion).insert(datos_js).execute()
+                res = supabase.table(tabla_agentes_produccion).insert(datos_js).execute()
+
+                # Luego de insertar el registro, se saca el ID (del usuario creado) que devuelve la respuesta de la petición
+                id_agente = res.data[0]['id_agente']
+                guardar_historial('AGENTES', id_agente, "nuevo usuario", usuario, datos_js)
 
                 return jsonify({"registro_agente_status": "OK"}), 200
 
@@ -192,19 +200,37 @@ class Agente():
                 "nombre": request.json.get('nombre'),
                 "correo": request.json.get('correo'),
                 "celular": request.json.get('celular'),
+                "grupo": request.json.get('grupo'),
                 "campana": request.json.get('campana'),
                 "lider_responsable": request.json.get('lider_responsable'),
                 "lider_equipo":  request.json.get('lider_equipo'),
             }
 
             id_agente = request.json.get('id_agente')
+            cedula = request.json.get('cedula_usuario')
 
             campos_vacios = diccionario_vacio(data_dict)
 
             if campos_vacios:
                 return jsonify({"registrar_agente_status": "existen campos vacios", "campos_vacios": campos_vacios}), 400
             
+            # Datos del usuario que hace la acción (actualizar el estado de la venta)
+            datos_usuario = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
+            usuario = datos_usuario.data[0]['usuario']
+
+            # Datos de la venta antes de actualizarla
+            datos_agente_actualizar = supabase.table(tabla_agentes_produccion).select("nombre", "correo", "celular", "campana", "grupo", "lider_responsable", "lider_equipo").eq('id_agente', id_agente).execute()
+
+
+             # Registro final de los datos nuevos vs los datos anteriores
+            registro_anterior = datos_agente_actualizar.data
+            registro_nuevo = data_dict
+
+            # JSON con los cambios detectados
+            cambios = comparar_informacion(registro_anterior, registro_nuevo)
+
             supabase.table(tabla_agentes_produccion).update(data_dict).eq('id_agente', id_agente).execute()
+            guardar_historial('AGENTES', id_agente, "actualizacion de usuario", usuario, cambios)
 
             return jsonify({"actualizar_agente": "OK"}), 200
         
@@ -238,15 +264,28 @@ class Agente():
     
     # Elimina un usuario desde su id 
     # /eliminar-usuario/<id>
-    def eliminar_usuario(self, id_agente):
+    def eliminar_usuario(self):
         try:
-            response = supabase.table(tabla_agentes_produccion).select("*").eq('id_agente', id_agente).execute()
 
-            if len(response.data) == 0:
+            id_agente = request.json.get('id_agente')
+            cedula = request.json.get('cedula_usuario')
+
+            # Datos de la venta antes de eliminarla
+            datos_usuario_eliminar = supabase.table(tabla_agentes_produccion).select("*").eq('id_agente', id_agente).execute()
+
+            if len(datos_usuario_eliminar.data) == 0:
                 return jsonify({"eliminacion_usuario_status": "error", "mensaje": "ese id de usuario no existe"}), 200
             
             else:
+                # Datos del usuario que hace la acción (elimina el registro)
+                datos_usuario = supabase.table(tabla_agentes_produccion).select('*').eq('cedula', cedula).execute()
+                usuario = datos_usuario.data[0]['usuario']
+                cambios = datos_usuario_eliminar.data[0]
+
                 supabase.table(tabla_agentes_produccion).delete().eq('id_agente', id_agente).execute()
+
+                guardar_historial('AGENTES', id_agente, "eliminacion de usuario", usuario, cambios)
+
                 return jsonify({"eliminacion_usuario_status": "OK"}), 200
 
         except Exception as e:

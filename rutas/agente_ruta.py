@@ -34,8 +34,8 @@ def put_cambiar_contrasena():
 def actualizar_info_agente():
    return con_agente.actualizar_agente()
 
-@eliminar_usuario.route('/eliminar-usuario/<id_agente>', methods=['DELETE'])
+@eliminar_usuario.route('/eliminar-usuario/', methods=['DELETE'])
 @cross_origin()
-def delete_eliminar_usuario(id_agente):
-   return con_agente.eliminar_usuario(id_agente)
+def delete_eliminar_usuario():
+   return con_agente.eliminar_usuario()
 
