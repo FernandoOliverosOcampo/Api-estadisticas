@@ -5,6 +5,69 @@ from modelos.generales import *
 
 class Venta():
 
+    def descargar_ventas_intervalo_fecha(self):
+
+        try:
+
+            fecha_inicial_str = request.json.get("fecha_inicial")
+            fecha_final_str = request.json.get("fecha_final")
+
+            # Validación de datos de entrada
+            if not fecha_inicial_str or not fecha_final_str:
+                return jsonify({"error": "Las fechas de inicio y fin son requeridas"}), 400
+
+            # Convertir cadenas de fecha en objetos de fecha
+            fecha_inicial = datetime.strptime(fecha_inicial_str, '%d/%m/%Y')
+            fecha_final = datetime.strptime(fecha_final_str, '%d/%m/%Y')
+
+            # Formateo y union de fechas
+            dia_inicial = fecha_inicial.day
+            mes_inicial = fecha_inicial.month
+            mes_inicial_formateado = self.detectar_mes(str(mes_inicial))
+
+            dia_final = fecha_final.day
+            mes_final = fecha_final.month
+            mes_final_formateado = self.detectar_mes(str(mes_final))
+
+            # Fechas finales
+            fecha_inicial_nombre = f'{dia_inicial}{mes_inicial_formateado}'
+            fecha_final_nombre = f'{dia_final}{mes_final_formateado}'
+
+            # Realizar la consulta a Supabase
+            response = supabase.table(tabla_ventas_produccion).select("*").order('id.desc').execute()
+
+            # Filtrar las ventas en el intervalo de fechas y que pertenezcan al mismo mes y año
+            ventas_en_intervalo = [
+                venta for venta in response.data
+                if (
+                    fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month == fecha_inicial.month
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year == fecha_inicial.year
+                ) or (
+                    fecha_inicial <= datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y') <= fecha_final
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').month == fecha_final.month
+                    and datetime.strptime(venta['fecha_ingreso_venta'], '%d/%m/%Y').year == fecha_final.year
+                )
+            ]
+
+            csv_filename = f'./ventas_realizadas del {fecha_inicial_nombre} al {fecha_final_nombre}.csv'
+            #csv_filename = f'/home/equitisoporte/Api-estadisticas/ventas_realizadas del {fecha_inicial_nombre} al {fecha_final_nombre}.csv'
+            # Crear un DataFrame de Pandas
+            df_ventas = pd.DataFrame(ventas_en_intervalo)
+
+            # Exportar el DataFrame a un archivo CSV
+            df_ventas.to_csv(csv_filename, index = False)
+
+            # Ruta al archivo CSV exportado
+            archivo_csv = f'./ventas_realizadas del {fecha_inicial_nombre} al {fecha_final_nombre}.csv'
+            # f'/home/equitisoporte/Api-estadisticas/ventas_realizadas del {fecha_inicial_nombre} al {fecha_final_nombre}.csv'
+            # Descargar el archivo CSV
+            return send_file(archivo_csv, as_attachment = True), 200
+
+        except Exception as e:
+            print(e)
+            return jsonify({"error": "Ocurrió un error al procesar la solicitud"}), 500
+
     # Descarga todas las ventas con id's mayor a 1000
     # /descargar-ventas/
     def descargar_ventas_realizadas(self):
@@ -822,3 +885,24 @@ class Venta():
         except requests.exceptions.HTTPError as err:
                 print(err)
         return 201
+
+    def detectar_mes(self, mes):
+        meses = {
+            "2" : 'Feb',
+            "3" : 'Mar',
+            "4" : 'Abr',
+            "5" : 'May',
+            "6" : 'Jun',
+            "7" : 'Jul',
+            "8" : 'Ago',
+            "9" : 'Sep',
+            "10" : 'Oct',
+            "11" : 'Nov',
+            "12" : 'Dic',
+        }
+
+        if mes in meses:
+            return meses[mes]
+
+
+

@@ -13,6 +13,7 @@ app.config['JWT_SECRET_KEY'] = 'super-secret' # Clave secreta para firmar los JW
 # GENERALES
 app.register_blueprint(iniciar_sesion)
 app.register_blueprint(descargar_ventas_realizadas)
+app.register_blueprint(descargar_ventas_intervalo_fecha)
 
 # AGENTE
 app.register_blueprint(mostrar_datos_personales)

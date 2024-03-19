@@ -7,6 +7,10 @@ class VentaControlador():
     def descargar_ventas_realizadas(self):
         query = mod_venta.descargar_ventas_realizadas()
         return query
+    
+    def descargar_ventas_intervalo_fecha(self):
+        query = mod_venta.descargar_ventas_intervalo_fecha()
+        return query
 
     def mostrar_todas_ventas_realizadas(self):
         query = mod_venta.mostrar_todas_ventas_realizadas()

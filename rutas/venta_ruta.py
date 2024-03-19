@@ -3,6 +3,7 @@ from librerias import *
 
 con_venta = VentaControlador()
 descargar_ventas_realizadas = Blueprint('descargar_ventas_realizadas', __name__)
+descargar_ventas_intervalo_fecha = Blueprint('descargar_ventas_intervalo_fecha', __name__)
 mostrar_todas_ventas_realizadas = Blueprint('mostrar_todas_ventas_realizadas', __name__)
 mostrar_ventas_realizadas = Blueprint('mostrar_ventas_realizadas', __name__)
 mostrar_estado_ventas = Blueprint('mostrar_estado_ventas', __name__)
@@ -32,6 +33,11 @@ mostrar_por_intervalo_leader = Blueprint("mostrar_por_intervalo_leader", __name_
 @cross_origin()
 def get_descargar_ventas_realizadas():
    return con_venta.descargar_ventas_realizadas()
+
+@descargar_ventas_intervalo_fecha.route('/descargar-ventas-intervalo-fechas/', methods=['POST'])
+@cross_origin()
+def get_descargar_ventas_intervalo_fecha():
+   return con_venta.descargar_ventas_intervalo_fecha()
 
 @mostrar_todas_ventas_realizadas.route('/mostrar-ventas/', methods=['GET'])
 @cross_origin()
